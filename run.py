@@ -20,4 +20,28 @@ users = SHEET.worksheet('users')
 
 data = users.get_all_values()
 
-print(data)
+# print(data)
+
+def main_menu():
+    """
+    Runs the main functions
+    """
+    print(
+        """To continue, please select an option from the below menu and input below
+
+        1- Login
+        2- Create Account
+        3- Help
+        """)
+    menu_select = input("Input 1, 2 or 3:\n")
+    
+    if menu_select == 1:
+        login()
+    elif menu_select == 2:
+        create_account()
+    else: 
+        display_help()
+
+
+print("Welcome to the budget and savings tracker!\n")
+main_menu()
