@@ -14,23 +14,40 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('savings_tracker')
+USERS_SHEET = SHEET.worksheet('users')
 
 
 
 
+def validate_login_details(login_attempt):
+    """
+    Validates the user's login request
+    """
+    usernames = USERS_SHEET.col_values(3)[1:]
+    passwords = USERS_SHEET.col_values(4)[1:]
 
-
+    list = []
+    for username, password in zip(usernames, passwords):
+        user = {username: password}
+        list.append(user)
+    
+    try:
+        list.index(login_attempt)
+    except:
+        print("Username or password incorrect. Please try again\n")
+        login()
 
 
 def login():
     """
-    Prompts the user to input their credentials to access their account
+    Prompts the user to input their username and
+    password to access their account
     """
     username = input("Username:\n")
     password = input("Password:\n")
+    print()
 
     login_attempt = {username: password}
-    print(login_attempt)
     validate_login_details(login_attempt)
 
 
@@ -76,6 +93,6 @@ def main_menu():
     else:
         main_menu()
 
-
+# validate_login_details('login_attempt')
 print("Welcome to the budget and savings tracker!\n")
 main_menu()
