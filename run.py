@@ -17,6 +17,21 @@ SHEET = GSPREAD_CLIENT.open('savings_tracker')
 USERS_SHEET = SHEET.worksheet('users')
 
 
+def create_account():
+    """
+    """
+
+
+def display_help():
+    """
+    Called from either the main menu or account menu,
+    displays information about the app and how to use
+    """
+    print("""The budget and savings tracker is a handy tool where you can keep track of 
+    your monthly earnings and spending and calculate a budget.
+    """)
+    input("Press enter to return to main menu\n")
+    main_menu()
 
 
 def validate_login_details(login_attempt):
@@ -33,7 +48,8 @@ def validate_login_details(login_attempt):
     
     try:
         list.index(login_attempt)
-    except:
+        print("welcome back!")
+    except ValueError:
         print("Username or password incorrect. Please try again\n")
         login()
 
@@ -71,7 +87,7 @@ def main_menu():
     or view app information
     """
     print(
-        """To continue, please select an option from the below menu
+        """Please select an option from the below menu
 
         1- Login
         2- Create Account
