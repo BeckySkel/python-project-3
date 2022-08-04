@@ -35,13 +35,13 @@ def validate_username_creation():
 
 def validate_password_creation():
     """
-    Prompts the user to choose a password. Checks if it is at least 5
-    characters long and contains at least 1 uppercase character
+    Prompts the user to choose a password. Checks if it meets all criteria
+    and restarts if it doesn't.
     """
     print("""Password must meet the following criteria:
     - 5 to 15 characters long
-    - contain at least 1 uppercase and 1 lowercase letter
-    - contain at least 1 number and no special characters
+    - at least 1 uppercase and 1 lowercase letter
+    - at least 1 number
     """)
     password = input("Password:\n")
 
@@ -62,27 +62,43 @@ def validate_password_creation():
                 lowercase_count += 1
 
     if length_valid and uppercase_count and lowercase_count and number_count:
-        print('Password valid!\n') 
+        print("Password valid!\n") 
+        return password
     else:
-        print('Password invalid. Please try again\n')
+        print("Password invalid. Please try again\n")
         validate_password_creation()
 
 
 def create_account():
     """
+    Runs functions for user to input information and create account
     """
+    print("ACCOUNT SETUP:\n")
     valid_username = validate_username_creation()
     print(f"Username {valid_username} is available!\n")
     valid_password = validate_password_creation()
-    # print(f"Password valid!\n")
     print("Finally, please tell us your name")
-    # validate_name = validate_name_creation()
+    name = input("Name:\n")
     
-    # if validate_username and validate_password and validate_name:
-    #     print("Account created successfully! Please log in")
-    #     login()
+    print(f"""
+You have entered the following details:
+    Username: {valid_username}
+    Password: {valid_password}
+    Name: {name}
+    """)
+    save_account = input("Please enter 1 to save details and setup account or 2 to reset datails and start again:\n")
+    validation = validate_menu_choices(save_account, 2)
+    if validation:
+        selection_int = int(save_account)
+        if selection_int == 1:
+            save_account_details(valid_username, valid_password, name)
+        elif selection_int == 2:
+            create_account()
+            print()
     # else:
-    #     create_account()
+        # re-run save_account input request  
+
+# Add another function for menu validation and selection based on above code
 
 
 def display_help():
@@ -122,6 +138,7 @@ def login():
     Prompts the user to input their username and
     password to access their account
     """
+    print("ACCOUNT LOGIN:\n")
     username = input("Username:\n")
     password = input("Password:\n")
     print()
@@ -149,6 +166,7 @@ def main_menu():
     Displays the main menu with options for the user to login, create account
     or view app information
     """
+    print("MAIN MENU:\n")
     print(
         """Please select an option from the below menu
     1- Login
