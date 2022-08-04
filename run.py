@@ -27,7 +27,7 @@ def validate_username_creation():
     usernames = USERS_SHEET.col_values(3)[1:]
 
     if username in usernames:
-        print("That username is already taken, please try again\n")
+        print("That username is unavailable, please try again\n")
         validate_username_creation()
     
     return username
@@ -39,30 +39,33 @@ def validate_password_creation():
     characters long and contains at least 1 uppercase character
     """
     print("""Password must meet the following criteria:
-    - at least 5 characters long
-    - contain at least 1 upppercase and 1 lowercase letter
+    - 5 to 15 characters long
+    - contain at least 1 uppercase and 1 lowercase letter
+    - contain at least 1 number and no special characters
     """)
     password = input("Password:\n")
 
     password_length = len(password)
-    length_valid = True if password_length >= 5 else False
-    print(f"Password is {password_length} characters long, therefore length_valid is {length_valid}")
-    print()
+    length_valid = True if password_length >= 5 and password_length <= 15 else False
 
     uppercase_count = 0
-    for char in password:
-        if char.isupper():
-            uppercase_count =+ 1
-            break
-
     lowercase_count = 0
+    number_count = 0
     for char in password:
-        if char.islower():
-            lowercase_count =+ 1
-            break
+        try:
+            int(char)
+            number_count += 1
+        except ValueError:
+            if char.isupper():
+                uppercase_count += 1
+            if char.islower():
+                lowercase_count += 1
 
-    cases_valid = True if uppercase_count >= 1 and lowercase_count >= 1 else False
-    print(f"cases_valid is {cases_valid}")
+    if length_valid and uppercase_count and lowercase_count and number_count:
+        print('Password valid!\n') 
+    else:
+        print('Password invalid. Please try again\n')
+        validate_password_creation()
 
 
 def create_account():
@@ -71,7 +74,7 @@ def create_account():
     valid_username = validate_username_creation()
     print(f"Username {valid_username} is available!\n")
     valid_password = validate_password_creation()
-    print(f"Password valid!\n")
+    # print(f"Password valid!\n")
     print("Finally, please tell us your name")
     # validate_name = validate_name_creation()
     
@@ -148,7 +151,6 @@ def main_menu():
     """
     print(
         """Please select an option from the below menu
-
     1- Login
     2- Create Account
     3- Help
