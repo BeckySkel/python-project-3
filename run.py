@@ -21,6 +21,7 @@ ENTRIES_SHEET = SHEET.worksheet('entries')
 
 def display_table(user_id):
     """
+    Displays all of the current user's previous table entries
     """
     all_entries = ENTRIES_SHEET.get_all_values()
     
@@ -41,6 +42,8 @@ def display_table(user_id):
 
 def account_menu(user_id):
     """
+    Displays the account menu with options for the user to add a new entry,
+    remove a previous entry, edit their goals, view app information or logout
     """
     print("ACCOUNT:\n")
     display_table(user_id)
