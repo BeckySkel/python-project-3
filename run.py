@@ -17,6 +17,38 @@ SHEET = GSPREAD_CLIENT.open('savings_tracker')
 USERS_SHEET = SHEET.worksheet('users')
 
 
+def account_menu(user_id):
+    """
+    """
+    print("ACCOUNT:\n")
+    print("""Please select an option from the below menu
+    1- Add new entry
+    2- Remove entry
+    3- Edit Goal
+    4- Help
+    5- Logout
+        """)
+    menu_selection = input("Input 1, 2, 3, 4 or 5:\n")
+    print()
+    
+    validation = validate_menu_choices(menu_selection, 5)
+
+    if validation:
+        selection_int = int(menu_selection)
+        if selection_int == 1:
+            print("Add entry:")
+        elif selection_int == 2:
+            print("Remove entry:")
+        elif selection_int == 3: 
+            print("Edit goal:")
+        elif selection_int == 4:
+            display_help()
+        else:
+            print("You have successfully logged out.\n")
+            main_menu()
+    else:
+        main_menu()
+
 
 def validate_username_creation():
     """
@@ -82,6 +114,8 @@ def save_account_details(username, password, name):
         selection_int = int(save_account)
         if selection_int == 1:
             USERS_SHEET.append_row(user_row)
+            print("Welcome!\n")
+            account_menu(user_id)
         elif selection_int == 2:
             create_account()
     else:
@@ -137,7 +171,8 @@ def validate_login_details(login_attempt):
     
     try:
         list.index(login_attempt)
-        print("welcome back!")
+        print("Welcome back!")
+        account_menu()
     except ValueError:
         print("Username or password incorrect. Please try again\n")
         login()
