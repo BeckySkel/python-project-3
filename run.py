@@ -3,6 +3,7 @@
 # Google Sheets and gspread set-up by Code Institute Love Sandwiches project
 import gspread
 from google.oauth2.service_account import Credentials
+from tabulate import tabulate
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -15,12 +16,34 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('savings_tracker')
 USERS_SHEET = SHEET.worksheet('users')
+ENTRIES_SHEET = SHEET.worksheet('entries')
+
+
+def display_table(user_id):
+    """
+    """
+    all_entries = ENTRIES_SHEET.get_all_values()
+    
+    current_user = []
+    for entry in all_entries:
+        try:
+            uid = int(entry[1])
+            if uid == user_id:
+                current_user.append(entry[2:])
+        except ValueError:
+            pass
+
+    # Code for creating a table from official tabulate documentation
+    headers = ENTRIES_SHEET.row_values(1)[2:]
+    print(tabulate(current_user, headers, tablefmt='psql'))
+    print("Goal: \n")
 
 
 def account_menu(user_id):
     """
     """
     print("ACCOUNT:\n")
+    display_table(user_id)
     print("""Please select an option from the below menu
     1- Add new entry
     2- Remove entry
@@ -42,12 +65,14 @@ def account_menu(user_id):
         elif selection_int == 3: 
             print("Edit goal:")
         elif selection_int == 4:
-            display_help()
+            display_help('account', user_id)
+            account_menu(user_id)
         else:
             print("You have successfully logged out.\n")
             main_menu()
     else:
         main_menu()
+    # Add another function for menu validation and selection based on above code
 
 
 def validate_username_creation():
@@ -141,11 +166,10 @@ You have entered the following details:
     """)
 
     save_account_details(valid_username, valid_password, name)
+    # Add another function for menu validation and selection based on above code
 
-# Add another function for menu validation and selection based on above code
 
-
-def display_help():
+def display_help(menu, id):
     """
     Called from either the main menu or account menu,
     displays information about the app and how to use it
@@ -153,8 +177,11 @@ def display_help():
     print("""The budget and savings tracker is a handy tool where you can keep
     track of your monthly earnings and spending and calculate a budget.
     """)
-    input("Press enter to return to return to menu\n")
-    main_menu()
+    input("Press enter to return to menu\n")
+    if menu == 'main':
+        main_menu()
+    else:
+        account_menu(id)
 
 
 def validate_login_details(login_attempt):
@@ -170,9 +197,10 @@ def validate_login_details(login_attempt):
         list.append(user)
     
     try:
-        list.index(login_attempt)
-        print("Welcome back!")
-        account_menu()
+        index = list.index(login_attempt) + 1
+        user_id = int(USERS_SHEET.col_values(1)[index])
+        print("Welcome back!\n")
+        account_menu(user_id)
     except ValueError:
         print("Username or password incorrect. Please try again\n")
         login()
@@ -230,10 +258,18 @@ def main_menu():
         elif selection_int == 2:
             create_account()
         else: 
-            display_help()
+            display_help('main', 0)
+            main_menu()
     else:
         main_menu()
 
 
 print("Welcome to the budget and savings tracker!\n")
 main_menu()
+
+# display_table(1)
+
+# code to create table from official tabulate documentation
+# table = [["Sun",696000,1989100000],["Earth",6371,5973.6], ["Moon",1737,73.5],["Mars",3390,641.85]]
+               
+# print(f"\n{tabulate(table, headers='firstrow')}")
