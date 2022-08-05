@@ -19,6 +19,35 @@ USERS_SHEET = SHEET.worksheet('users')
 ENTRIES_SHEET = SHEET.worksheet('entries')
 
 
+def add_entry(user_id):
+    """
+    """
+    month = input("Month:\n")
+    income = int(input("Incoming(£):\n"))
+    outgoing = int(input("Outgoing(£):\n"))
+    net = income - outgoing
+    entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
+
+    all_entries = ENTRIES_SHEET.get_all_values()
+    user_entries_nums = []
+    for entry in all_entries:
+        try:
+            uid = int(entry[1])
+            if uid == user_id:
+                user_entries_nums.append(int(entry[2]))
+        except ValueError:
+            pass
+    user_entries_nums.sort()
+    # create seperate function for fitering entries?
+
+    entry_num = user_entries_nums[-1]+1
+
+    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, income, outgoing, net])
+    
+
+add_entry(1)
+
+
 def display_table(user_id):
     """
     Displays all of the current user's previous table entries
@@ -33,6 +62,7 @@ def display_table(user_id):
                 current_user.append(entry[2:])
         except ValueError:
             pass
+    # create seperate function for fitering entries?
 
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
@@ -62,7 +92,7 @@ def account_menu(user_id):
     if validation:
         selection_int = int(menu_selection)
         if selection_int == 1:
-            print("Add entry:")
+            add_entry(user_id)
         elif selection_int == 2:
             print("Remove entry:")
         elif selection_int == 3: 
@@ -267,8 +297,8 @@ def main_menu():
         main_menu()
 
 
-print("Welcome to the budget and savings tracker!\n")
-main_menu()
+# print("Welcome to the budget and savings tracker!\n")
+# main_menu()
 
 # display_table(1)
 
