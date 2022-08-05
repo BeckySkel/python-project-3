@@ -69,6 +69,25 @@ def validate_password_creation():
         validate_password_creation()
 
 
+def save_account_details(username, password, name):
+    """
+    """
+    user_id = int(USERS_SHEET.col_values(1)[-1])+1
+    user_row = [user_id, name, username, password]
+    
+    save_account = input("Please enter 1 to save details and setup account or 2 to reset details and start again:\n")
+    print()
+    validation = validate_menu_choices(save_account, 2)
+    if validation:
+        selection_int = int(save_account)
+        if selection_int == 1:
+            USERS_SHEET.append_row(user_row)
+        elif selection_int == 2:
+            create_account()
+    else:
+        save_account_details(username, password, name)
+
+
 def create_account():
     """
     Runs functions for user to input information and create account
@@ -86,17 +105,8 @@ You have entered the following details:
     Password: {valid_password}
     Name: {name}
     """)
-    save_account = input("Please enter 1 to save details and setup account or 2 to reset datails and start again:\n")
-    validation = validate_menu_choices(save_account, 2)
-    if validation:
-        selection_int = int(save_account)
-        if selection_int == 1:
-            save_account_details(valid_username, valid_password, name)
-        elif selection_int == 2:
-            create_account()
-            print()
-    # else:
-        # re-run save_account input request  
+
+    save_account_details(valid_username, valid_password, name)
 
 # Add another function for menu validation and selection based on above code
 
@@ -153,7 +163,7 @@ def validate_menu_choices(response, limit):
     """
     try:
         int(response)
-        if int(response) > limit:
+        if int(response) > limit or int(response) < 1:
             raise ValueError()
         return True
     except ValueError:
@@ -189,6 +199,6 @@ def main_menu():
     else:
         main_menu()
 
-# validate_login_details('login_attempt')
+
 print("Welcome to the budget and savings tracker!\n")
 main_menu()
