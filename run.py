@@ -21,6 +21,7 @@ ENTRIES_SHEET = SHEET.worksheet('entries')
 
 def remove_entry(user_id):
     """
+    Allows user to remove an entry from their monthly spending
     """
     print("REMOVE ENTRY:\n")
     entry_to_remove = input("Entry Number:\n")
@@ -38,6 +39,7 @@ def remove_entry(user_id):
 
 def add_entry(user_id):
     """
+    Allows user to add a new entry for their monthly spending
     """
     print("ADD NEW ENTRY:\n")
     month = input("Month:\n")
@@ -132,12 +134,25 @@ def validate_username_creation():
     Prompts the user to choose a username. Checks if it already exists
     and restarts if it does.
     """
+    print("""Username must meet the following criteria:
+    - 5 to 15 characters long
+    - unique
+    """)
     username = input("Username:\n")
+    username_length = len(username)
+
     usernames = USERS_SHEET.col_values(3)[1:]
 
-    if username in usernames:
-        print("That username is unavailable, please try again\n")
+    if username_length < 5:
+        print("Username too short, please try again\n")
         validate_username_creation()
+    elif username_length > 15:
+        print("Username too long, please try again\n")
+        validate_username_creation()
+    else:
+        if username in usernames:
+            print("That username is unavailable, please try again\n")
+            validate_username_creation()
     
     return username
 
