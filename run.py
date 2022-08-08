@@ -19,9 +19,27 @@ USERS_SHEET = SHEET.worksheet('users')
 ENTRIES_SHEET = SHEET.worksheet('entries')
 
 
+def remove_entry(user_id):
+    """
+    """
+    print("REMOVE ENTRY:\n")
+    entry_to_remove = input("Entry Number:\n")
+
+    entry_dicts = ENTRIES_SHEET.get_all_records()
+
+    for dict in entry_dicts:
+        uid = dict.get('User ID')
+        entry_num = dict.get('Entry Number')
+        if uid == user_id:
+            if entry_num == int(entry_to_remove):
+                entry = entry_dicts.index(dict) + 2
+                ENTRIES_SHEET.delete_rows(entry)
+
+
 def add_entry(user_id):
     """
     """
+    print("ADD NEW ENTRY:\n")
     month = input("Month:\n")
     income = int(input("Incoming(£):\n"))
     outgoing = int(input("Outgoing(£):\n"))
@@ -42,10 +60,8 @@ def add_entry(user_id):
 
     entry_num = user_entries_nums[-1]+1
 
-    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, income, outgoing, net])
-    
-
-add_entry(1)
+    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, income,
+    outgoing, net])
 
 
 def display_table(user_id):
@@ -94,17 +110,20 @@ def account_menu(user_id):
         if selection_int == 1:
             add_entry(user_id)
         elif selection_int == 2:
-            print("Remove entry:")
+            remove_entry(user_id)
         elif selection_int == 3: 
             print("Edit goal:")
         elif selection_int == 4:
             display_help('account', user_id)
             account_menu(user_id)
-        else:
+        elif selection_int == 5:
             print("You have successfully logged out.\n")
             main_menu()
     else:
         main_menu()
+    
+    print()
+    account_menu(user_id)
     # Add another function for menu validation and selection based on above code
 
 
@@ -297,8 +316,8 @@ def main_menu():
         main_menu()
 
 
-# print("Welcome to the budget and savings tracker!\n")
-# main_menu()
+print("Welcome to the budget and savings tracker!\n")
+main_menu()
 
 # display_table(1)
 
