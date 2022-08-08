@@ -20,22 +20,7 @@ ENTRIES_SHEET = SHEET.worksheet('entries')
 MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
-def remove_entry(user_id):
-    """
-    Allows user to remove an entry from their monthly spending
-    """
-    print("REMOVE ENTRY:\n")
-    entry_to_remove = input("Entry Number:\n")
 
-    entry_dicts = ENTRIES_SHEET.get_all_records()
-
-    for dict in entry_dicts:
-        uid = dict.get('User ID')
-        entry_num = dict.get('Entry Number')
-        if uid == user_id:
-            if entry_num == int(entry_to_remove):
-                entry = entry_dicts.index(dict) + 2
-                ENTRIES_SHEET.delete_rows(entry)
 
 
 def validate_month(month_input):
@@ -103,6 +88,28 @@ def add_entry(user_id):
     float(outgoing), net])
 
 
+def remove_entry(user_id):
+    """
+    Allows user to remove an entry from their monthly spending
+    """
+    print("REMOVE ENTRY:\n")
+    entry_to_remove = input("Entry Number:\n")
+
+    entry_dicts = ENTRIES_SHEET.get_all_records()
+
+    for dict in entry_dicts:
+        uid = dict.get('User ID')
+        entry_num = dict.get('Entry Number')
+        if uid == user_id:
+            if entry_num == int(entry_to_remove):
+                entry = entry_dicts.index(dict) + 2
+                ENTRIES_SHEET.delete_rows(entry)
+
+
+def edit_goal(user_id):
+    print("success")
+
+
 def display_table(user_id):
     """
     Displays all of the current user's previous table entries
@@ -143,29 +150,20 @@ def account_menu(user_id):
         """)
     menu_selection = input("Input 1, 2, 3, 4 or 5:\n")
     print()
-    
-    validation = validate_menu_choices(menu_selection, 5)
 
-    if validation:
-        selection_int = int(menu_selection)
-        if selection_int == 1:
-            add_entry(user_id)
-        elif selection_int == 2:
-            remove_entry(user_id)
-        elif selection_int == 3: 
-            print("Edit goal:")
-        elif selection_int == 4:
-            display_help('account', user_id)
-            account_menu(user_id)
-        elif selection_int == 5:
-            print("You have successfully logged out.\n")
-            main_menu()
+    menu_choices = [{'name': add_entry, 'param1': user_id},
+    {'name': remove_entry, 'param1': user_id},
+    {'name': edit_goal, 'param1': user_id},
+    {'name': display_help, 'param1': 'account', 'param2': user_id},
+    {'name': main_menu}]
+
+    if validate_menu_choice(menu_selection, 5):
+        action_menu_choice(menu_selection, menu_choices)
     else:
-        main_menu()
+        account_menu(user_id)
     
     print()
     account_menu(user_id)
-    # Add another function for menu validation and selection based on above code
 
 
 def validate_username_creation():
@@ -232,23 +230,33 @@ def validate_password_creation():
         validate_password_creation()
 
 
+def add_row(row):
+    print("success")
+
+
 def save_account_details(username, password, name):
     """
     """
     user_id = int(USERS_SHEET.col_values(1)[-1])+1
     user_row = [user_id, name, username, password]
     
-    save_account = input("Please enter 1 to save details and setup account or 2 to reset details and start again:\n")
+    menu_selection = input("Please enter 1 to save details and setup account or 2 to reset details and start again:\n")
     print()
-    validation = validate_menu_choices(save_account, 2)
-    if validation:
-        selection_int = int(save_account)
-        if selection_int == 1:
-            USERS_SHEET.append_row(user_row)
-            print("Welcome!\n")
-            account_menu(user_id)
-        elif selection_int == 2:
-            create_account()
+    # if validation:
+    #     selection_int = int(save_account)
+    #     if selection_int == 1:
+    #         USERS_SHEET.append_row(user_row)
+    #         print("Welcome!\n")
+    #         account_menu(user_id)
+    #     elif selection_int == 2:
+    #         create_account()
+    # else:
+    #     save_account_details(username, password, name)
+    
+    menu_choices = [{'name': add_row, 'param1': user_row}, {'name': create_account}]
+
+    if validate_menu_choice(menu_selection, 2):
+        action_menu_choice(menu_selection, menu_choices)
     else:
         save_account_details(username, password, name)
 
@@ -326,7 +334,7 @@ def login():
     validate_login_details(login_attempt)
 
 
-def validate_menu_choices(response, limit):
+def validate_menu_choice(response, limit):
     """
     Validates menu selection and raises error if invalide response entered
     """
@@ -340,10 +348,23 @@ def validate_menu_choices(response, limit):
         return False
 
 
+def action_menu_choice(response, functions):
+    """
+    """
+    function = functions[int(response)-1]
+
+    function_name = function['name']
+    parameters = []
+    for x in range(1, len(function)):
+        parameters.append(function['param' + str(x)])
+
+    function_name(*parameters)
+
+
 def main_menu():
     """
     Displays the main menu with options for the user to login, create account
-    or view app information
+    or view program information and instructions
     """
     print("MAIN MENU:\n")
     print(
@@ -355,27 +376,14 @@ def main_menu():
     menu_selection = input("Input 1, 2 or 3:\n")
     print()
     
-    validation = validate_menu_choices(menu_selection, 3)
-
-    if validation:
-        selection_int = int(menu_selection)
-        if selection_int == 1:
-            login()
-        elif selection_int == 2:
-            create_account()
-        else: 
-            display_help('main', 0)
-            main_menu()
+    menu_choices = [{'name': login}, {'name': create_account},
+    {'name': display_help, 'param1': 'main', 'param2': '0'}]
+    if validate_menu_choice(menu_selection, 3):
+        action_menu_choice(menu_selection, menu_choices)
     else:
         main_menu()
 
 
+# Greet user and run program
 print("Welcome to the budget and savings tracker!\n")
 main_menu()
-
-# display_table(1)
-
-# code to create table from official tabulate documentation
-# table = [["Sun",696000,1989100000],["Earth",6371,5973.6], ["Moon",1737,73.5],["Mars",3390,641.85]]
-               
-# print(f"\n{tabulate(table, headers='firstrow')}")
