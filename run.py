@@ -17,6 +17,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('savings_tracker')
 USERS_SHEET = SHEET.worksheet('users')
 ENTRIES_SHEET = SHEET.worksheet('entries')
+MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
 def remove_entry(user_id):
@@ -37,15 +38,51 @@ def remove_entry(user_id):
                 ENTRIES_SHEET.delete_rows(entry)
 
 
+def validate_month(month_input):
+    """
+    """
+    try:
+        MONTHS.index(f"{month_input}")
+    except ValueError:
+        print(f"Month must be in format Jan, Feb, Jul, Nov, etc. Please try again.\n")
+        return False
+
+    return True
+
+
+def validate_amount(amount):
+    """
+    """
+    try:
+        float(amount)
+    except ValueError:
+        print(f"Amount must be a number with up to 2 decimal points. You entered {amount}. Please try again")
+        return False
+
+    return True
+
+
 def add_entry(user_id):
     """
     Allows user to add a new entry for their monthly spending
     """
     print("ADD NEW ENTRY:\n")
-    month = input("Month:\n")
-    income = int(input("Incoming(£):\n"))
-    outgoing = int(input("Outgoing(£):\n"))
-    net = income - outgoing
+    while True:
+        month = input("Month:\n")
+        if validate_month(month):
+            break
+
+    while True:
+        income = input("Incoming(£):\n")
+        if validate_amount(income):
+            break
+    
+    while True:
+        outgoing = input("Outgoing(£):\n")
+        if validate_amount(outgoing):
+            break
+    
+    net = float(income) - float(outgoing)
     entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
 
     all_entries = ENTRIES_SHEET.get_all_values()
@@ -62,8 +99,8 @@ def add_entry(user_id):
 
     entry_num = user_entries_nums[-1]+1
 
-    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, income,
-    outgoing, net])
+    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, float(income),
+    float(outgoing), net])
 
 
 def display_table(user_id):
@@ -81,6 +118,8 @@ def display_table(user_id):
         except ValueError:
             pass
     # create seperate function for fitering entries?
+
+    # current_user.sort(key=MONTHS.index)
 
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
