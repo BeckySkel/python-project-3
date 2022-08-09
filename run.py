@@ -105,6 +105,7 @@ def add_entry(user_id):
     net = income - outgoing
     entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
 
+    # create seperate function for fitering entries?
     all_entries = ENTRIES_SHEET.get_all_values()
     user_entries_nums = []
     for entry in all_entries:
@@ -164,6 +165,7 @@ def display_table(user_id):
 
     Outputs: prints table of current user's spending data to the console
     """
+    # create seperate function for fitering entries?
     all_entries = ENTRIES_SHEET.get_all_values()
 
     current_user = []
@@ -176,12 +178,19 @@ def display_table(user_id):
             pass
     # create seperate function for fitering entries?
 
-    current_user.sort(key=MONTHS.index)
+    user_sorted = []
+    for m in MONTHS:
+        for entry in current_user:
+            month = entry[1]
+            if m == month:
+                user_sorted.append(entry)
 
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
-    print(tabulate(current_user, headers, tablefmt='psql'))
+    print(tabulate(user_sorted, headers, tablefmt='psql'))
     print("Goal: \n")
+
+display_table(3)
 
 
 def account_menu(user_id):
