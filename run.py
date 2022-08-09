@@ -76,9 +76,10 @@ def validate_amount(amount):
 
 def add_entry(user_id):
     """
-    Allows user to add a new entry for their monthly spending
+    Allows user to add a new entry for their monthly spending data
 
-    Parameters: user_id: the unique identifier of the user's account
+    Parameters: user_id: the unique identifier of the user's account,
+    used to manipulate the data of the user who is currently logged in
 
     Outputs: appends user's entered spending data to the database after
     running validation checks
@@ -124,7 +125,13 @@ def add_entry(user_id):
 
 def remove_entry(user_id):
     """
-    Allows user to remove an entry from their monthly spending
+    Allows user to remove an entry from their monthly spending data
+
+    Parameters: user_id: the unique identifier of the user's account,
+    used to manipulate the data of the user who is currently logged in
+
+    Outputs: deletes row from entry data based on the user's unique ID
+    and their inputted entry ID
     """
     print("REMOVE ENTRY:\n")
     entry_to_remove = input("Entry Number:\n")
@@ -138,6 +145,7 @@ def remove_entry(user_id):
             if entry_num == int(entry_to_remove):
                 entry = entry_dicts.index(e_d) + 2
                 ENTRIES_SHEET.delete_rows(entry)
+    # ADD VALIDATION??
 
 
 def edit_goal(user_id):
@@ -150,6 +158,11 @@ def edit_goal(user_id):
 def display_table(user_id):
     """
     Displays all of the current user's previous table entries
+
+    Parameters: user_id: the unique identifier of the user's account,
+    used to access and display the data of the user who is currently logged in
+
+    Outputs: prints table of current user's spending data to the console
     """
     all_entries = ENTRIES_SHEET.get_all_values()
 
@@ -175,6 +188,13 @@ def account_menu(user_id):
     """
     Displays the account menu with options for the user to add a new entry,
     remove a previous entry, edit their goals, view app information or logout
+
+    Parameters: user_id: the unique identifier of the user's account,
+    used to access the data of the user who is currently logged in
+
+    Outputs: calls action_menu_choice function to select the next function to
+    run based on user's input. Provides funtcion name and parameters via a
+    list of dictionaries named menu_choices. Loops until user logs out
     """
     print("ACCOUNT:\n")
     display_table(user_id)
@@ -207,6 +227,10 @@ def logout():
     """
     Returns the user to the main menu and lets them know that they have
     successfully logged out of the portal
+
+    Parameters: none
+
+    Outputs: prints a message to the console and calls the main_menu() function
     """
     print("Successfully logged out.")
     main_menu()
@@ -214,8 +238,12 @@ def logout():
 
 def validate_username_creation():
     """
-    Prompts the user to choose a username. Checks if it already exists
-    and restarts if it does.
+    Prompts the user to choose a username. Validates by checking length
+    and whether username already in use. Loops if invalid
+
+    Parameters: none
+
+    Outputs: returns username when passes validation
     """
     print("""Username must meet the following criteria:
     - 5 to 15 characters long
@@ -242,8 +270,12 @@ def validate_username_creation():
 
 def validate_password_creation():
     """
-    Prompts the user to choose a password. Checks if it meets all criteria
-    and restarts if it doesn't.
+    Prompts the user to choose a password. Checks if it meets all
+    validation criteria and loops if it doesn't
+
+    Parameters: none
+
+    Outputs: returns password when passes validation
     """
     print("""Password must meet the following criteria:
     - 5 to 15 characters long
@@ -285,7 +317,15 @@ def add_row(row):
 
 def save_account_details(username, password, name):
     """
-    PLACEHOLDER
+    Checks user is happy to submit and save their account details and continue
+    with creation
+
+    Parameters: username: the user's chosen username, password: the user's
+    chosen password, name: the user's name
+
+    Outputs: calls action_menu_choice function to select the next function to
+    run based on user's input. Provides function name and parameters via a
+    list of dictionaries named menu_choices. Loops if invalid input
     """
     user_id = int(USERS_SHEET.col_values(1)[-1])+1
     user_row = [user_id, name, username, password]
@@ -293,16 +333,6 @@ def save_account_details(username, password, name):
     menu_selection = input("Please enter 1 to save details and setup account",
                            "or 2 to reset details and start again:\n")
     print()
-    # if validation:
-    #     selection_int = int(save_account)
-    #     if selection_int == 1:
-    #         USERS_SHEET.append_row(user_row)
-    #         print("Welcome!\n")
-    #         account_menu(user_id)
-    #     elif selection_int == 2:
-    #         create_account()
-    # else:
-    #     save_account_details(username, password, name)
 
     menu_choices = [{'name': add_row, 'param1': user_row},
                     {'name': create_account}]
@@ -315,7 +345,13 @@ def save_account_details(username, password, name):
 
 def create_account():
     """
-    Runs functions for user to input information and create account
+    Begins the account creation process. Runs validation functions to request
+    and validate account details
+
+    Parameters: none
+
+    Outputs: calls save_account_details() function with validated username,
+    validated password and name parameters
     """
     print("ACCOUNT SETUP:\n")
     valid_username = validate_username_creation()
@@ -339,7 +375,13 @@ You have entered the following details:
 def display_help(menu, user_id):
     """
     Called from either the main menu or account menu,
-    displays information about the app and how to use it
+    displays information about the program and how to use it
+
+    Parameters: menu: string with name of menu called from/to return to
+    user_id: the unique identifier of the user's account,
+    used to access the data of the user who is currently logged in
+
+    Outputs: calls back to either main or account menu based on first parameter
     """
     print("""The budget and savings tracker is a handy tool where you can keep
     track of your monthly earnings and spending and calculate a budget.
@@ -354,6 +396,11 @@ def display_help(menu, user_id):
 def validate_login_details(login_attempt):
     """
     Validates the user's login request
+
+    Parameters: login_attempt: a dictionary of the user's input username and
+    password
+
+    Outputs: runs account menu if login valid, returns to login if invalid
     """
     usernames = USERS_SHEET.col_values(3)[1:]
     passwords = USERS_SHEET.col_values(4)[1:]
@@ -375,8 +422,13 @@ def validate_login_details(login_attempt):
 
 def login():
     """
-    Prompts the user to input their username and
-    password to access their account
+    Prompts the user to input their username and password to
+    access their account
+
+    Parameters: none
+
+    Outputs: calls validate_login_details() function with a dictionary of
+    the user's input username and password
     """
     print("ACCOUNT LOGIN:\n")
     username = input("Username:\n")
@@ -390,6 +442,12 @@ def login():
 def validate_menu_choice(response, limit):
     """
     Validates menu selection and raises error if invalid response entered
+
+    Parameters: response: user's input response to menu selection,
+    limit: limit of options in menu
+
+    Outputs: (boolena) returns True if input is within limit and an integer,
+    returns False if not.
     """
     try:
         int(response)
@@ -405,7 +463,13 @@ def validate_menu_choice(response, limit):
 
 def action_menu_choice(response, functions):
     """
-    Calls the correct function
+    Calls the correct function based on user's input
+
+    Parameters: repsonse: user's input response to menu selection,
+    functions: list of dictionaries with function names and parameters
+    to be unpacked
+
+    Outputs: calls correct function based on user's input
     """
     function = functions[int(response)-1]
 
@@ -424,9 +488,9 @@ def main_menu():
 
     Parameters: none
 
-    Returns: calls action_menu_choice function to select the next function to
-    run based on user's input. Provides funtcion name and parameters via a
-    list of dictionaries
+    Outputs: calls action_menu_choice function to select the next function to
+    run based on user's input. Provides function name and parameters via a
+    list of dictionaries named menu_choices. Loops if invalid input
     """
     print("MAIN MENU:\n")
     print(
