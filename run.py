@@ -86,7 +86,7 @@ def add_entry(user_id):
     """
     print("ADD NEW ENTRY:\n")
     while True:
-        month = input("Month:\n")
+        month = input("Month:\n").lower().capitalize()
         if validate_month(month):
             break
 
@@ -176,7 +176,7 @@ def display_table(user_id):
             pass
     # create seperate function for fitering entries?
 
-    # current_user.sort(key=MONTHS.index)
+    current_user.sort(key=MONTHS.index)
 
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
@@ -236,7 +236,7 @@ def logout():
     main_menu()
 
 
-def validate_username_creation():
+def validate_username_creation(username):
     """
     Prompts the user to choose a username. Validates by checking length
     and whether username already in use. Loops if invalid
@@ -245,30 +245,25 @@ def validate_username_creation():
 
     Outputs: returns username when passes validation
     """
-    print("""Username must meet the following criteria:
-    - 5 to 15 characters long
-    - unique
-    """)
-    username = input("Username:\n")
     username_length = len(username)
 
     usernames = USERS_SHEET.col_values(3)[1:]
 
     if username_length < 5:
         print("Username too short, please try again\n")
-        validate_username_creation()
+        return False
     elif username_length > 15:
         print("Username too long, please try again\n")
-        validate_username_creation()
+        return False
     else:
         if username in usernames:
             print("That username is unavailable, please try again\n")
-            validate_username_creation()
+            return False
 
-    return username
+    return True
 
 
-def validate_password_creation():
+def validate_password_creation(password):
     """
     Prompts the user to choose a password. Checks if it meets all
     validation criteria and loops if it doesn't
@@ -277,13 +272,6 @@ def validate_password_creation():
 
     Outputs: returns password when passes validation
     """
-    print("""Password must meet the following criteria:
-    - 5 to 15 characters long
-    - at least 1 uppercase and 1 lowercase letter
-    - at least 1 number
-    """)
-    password = input("Password:\n")
-
     pass_length = len(password)
     length_valid = True if pass_length >= 5 and pass_length <= 15 else False
 
@@ -302,17 +290,21 @@ def validate_password_creation():
 
     if length_valid and uppercase_count and lowercase_count and number_count:
         print("Password valid!\n")
-        return password
+        return True
     else:
         print("Password invalid. Please try again\n")
-        validate_password_creation()
+        return False
 
 
-def add_row(row):
+def append_user_row(row):
     """
     PLACEHOLDER
     """
-    print(f"success {row}")
+    USERS_SHEET.append_row(row)
+    print(f"Welcome {row[1]}!")
+    print("Account susccessfully created\n")
+
+    account_menu(row[0])
 
 
 def save_account_details(username, password, name):
@@ -330,11 +322,12 @@ def save_account_details(username, password, name):
     user_id = int(USERS_SHEET.col_values(1)[-1])+1
     user_row = [user_id, name, username, password]
 
-    menu_selection = input("Please enter 1 to save details and setup account",
-                           "or 2 to reset details and start again:\n")
+    print("Please enter 1 to save details and setup account or 2 to reset",
+          "details and start again:\n")
+    menu_selection = input("Input 1 or 2:\n")
     print()
 
-    menu_choices = [{'name': add_row, 'param1': user_row},
+    menu_choices = [{'name': append_user_row, 'param1': user_row},
                     {'name': create_account}]
 
     if validate_menu_choice(menu_selection, 2):
@@ -354,22 +347,39 @@ def create_account():
     validated password and name parameters
     """
     print("ACCOUNT SETUP:\n")
-    valid_username = validate_username_creation()
-    print(f"Username {valid_username} is available!\n")
-    valid_password = validate_password_creation()
+
+    while True:
+        print("""Username must meet the following criteria:
+    - 5 to 15 characters long
+    - unique
+    """)
+        username = input("Username:\n")
+        if validate_username_creation(username):
+            break
+    print(f"Username {username} is available!\n")
+
+    while True:
+        print("""Password must meet the following criteria:
+    - 5 to 15 characters long
+    - at least 1 uppercase and 1 lowercase letter
+    - at least 1 number
+    """)
+        password = input("Password:\n")
+        if validate_password_creation(password):
+            break
+    print(f"Password {password} is valid!\n")
+
     print("Finally, please tell us your name")
     name = input("Name:\n")
 
     print(f"""
 You have entered the following details:
-    Username: {valid_username}
-    Password: {valid_password}
+    Username: {username}
+    Password: {password}
     Name: {name}
     """)
 
-    save_account_details(valid_username, valid_password, name)
-    # Add another function for menu validation and selection
-    # based on above code
+    save_account_details(username, password, name)
 
 
 def display_help(menu, user_id):
