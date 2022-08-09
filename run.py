@@ -1,8 +1,13 @@
+"""
+Module for running full program and interacting with database
+"""
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 # Google Sheets and gspread set-up by Code Institute Love Sandwiches project
+# Imported to interact with savings_tracker database in Google Sheets
 import gspread
 from google.oauth2.service_account import Credentials
+# Imported to display the user's data in an easy-to-read table
 from tabulate import tabulate
 
 SCOPE = [
@@ -11,25 +16,38 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
+# Global constants
 CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('savings_tracker')
 USERS_SHEET = SHEET.worksheet('users')
 ENTRIES_SHEET = SHEET.worksheet('entries')
-MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-
-
+MONTHS = [
+    'Jan', 'Feb', 'Mar',
+    'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep',
+    'Oct', 'Nov', 'Dec'
+    ]
 
 
 def validate_month(month_input):
     """
+    Checks the format and spelling of the user's 'month' input against a list
+    of all 12 months when adding/editing an entry to ensure consistency and
+    correctness.
+
+    Parameters: month_input: users's month input from add_entry or edit_entry
+    functions
+
+    ROutputs: (boolean) returns True if input correctly formatted and present
+    in month list, False if not
     """
     try:
         MONTHS.index(f"{month_input}")
     except ValueError:
-        print(f"Month must be in format Jan, Feb, Jul, Nov, etc. Please try again.\n")
+        print("Month must be in format Jan, Feb, Jul, Nov, etc.",
+              "Please try again.\n")
         return False
 
     return True
@@ -37,11 +55,20 @@ def validate_month(month_input):
 
 def validate_amount(amount):
     """
+    Checks that the amount entered can be converted to a float and is therefore
+    a valid income/outgoing entry
+
+    Parameters: amount: users's income or outgoing input from add_entry or
+    edit_entry functions
+
+    Outputs:(boolean) returns True if input can be converted to a float value,
+    False if not
     """
     try:
         float(amount)
     except ValueError:
-        print(f"Amount must be a number with up to 2 decimal points. You entered {amount}. Please try again")
+        print("Amount must be a number (will be rounded to 2 decimal places).",
+              f"You entered {amount}. Please try again")
         return False
 
     return True
@@ -50,6 +77,11 @@ def validate_amount(amount):
 def add_entry(user_id):
     """
     Allows user to add a new entry for their monthly spending
+
+    Parameters: user_id: the unique identifier of the user's account
+
+    Outputs: appends user's entered spending data to the database after
+    running validation checks
     """
     print("ADD NEW ENTRY:\n")
     while True:
@@ -61,13 +93,15 @@ def add_entry(user_id):
         income = input("Incoming(£):\n")
         if validate_amount(income):
             break
-    
+
     while True:
         outgoing = input("Outgoing(£):\n")
         if validate_amount(outgoing):
             break
-    
-    net = float(income) - float(outgoing)
+
+    income = round(float(income), 2)
+    outgoing = round(float(outgoing), 2)
+    net = income - outgoing
     entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
 
     all_entries = ENTRIES_SHEET.get_all_values()
@@ -84,8 +118,8 @@ def add_entry(user_id):
 
     entry_num = user_entries_nums[-1]+1
 
-    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month, float(income),
-    float(outgoing), net])
+    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
+                             income, outgoing, net])
 
 
 def remove_entry(user_id):
@@ -97,17 +131,20 @@ def remove_entry(user_id):
 
     entry_dicts = ENTRIES_SHEET.get_all_records()
 
-    for dict in entry_dicts:
-        uid = dict.get('User ID')
-        entry_num = dict.get('Entry Number')
+    for e_d in entry_dicts:
+        uid = e_d.get('User ID')
+        entry_num = e_d.get('Entry Number')
         if uid == user_id:
             if entry_num == int(entry_to_remove):
-                entry = entry_dicts.index(dict) + 2
+                entry = entry_dicts.index(e_d) + 2
                 ENTRIES_SHEET.delete_rows(entry)
 
 
 def edit_goal(user_id):
-    print("success")
+    """
+    PLACEHOLDER
+    """
+    print(f"success {user_id}")
 
 
 def display_table(user_id):
@@ -115,7 +152,7 @@ def display_table(user_id):
     Displays all of the current user's previous table entries
     """
     all_entries = ENTRIES_SHEET.get_all_values()
-    
+
     current_user = []
     for entry in all_entries:
         try:
@@ -152,18 +189,27 @@ def account_menu(user_id):
     print()
 
     menu_choices = [{'name': add_entry, 'param1': user_id},
-    {'name': remove_entry, 'param1': user_id},
-    {'name': edit_goal, 'param1': user_id},
-    {'name': display_help, 'param1': 'account', 'param2': user_id},
-    {'name': main_menu}]
+                    {'name': remove_entry, 'param1': user_id},
+                    {'name': edit_goal, 'param1': user_id},
+                    {'name': display_help, 'param1': 'account',
+                    'param2': user_id}, {'name': logout}]
 
     if validate_menu_choice(menu_selection, 5):
         action_menu_choice(menu_selection, menu_choices)
     else:
         account_menu(user_id)
-    
+
     print()
     account_menu(user_id)
+
+
+def logout():
+    """
+    Returns the user to the main menu and lets them know that they have
+    successfully logged out of the portal
+    """
+    print("Successfully logged out.")
+    main_menu()
 
 
 def validate_username_creation():
@@ -190,7 +236,7 @@ def validate_username_creation():
         if username in usernames:
             print("That username is unavailable, please try again\n")
             validate_username_creation()
-    
+
     return username
 
 
@@ -206,8 +252,8 @@ def validate_password_creation():
     """)
     password = input("Password:\n")
 
-    password_length = len(password)
-    length_valid = True if password_length >= 5 and password_length <= 15 else False
+    pass_length = len(password)
+    length_valid = True if pass_length >= 5 and pass_length <= 15 else False
 
     uppercase_count = 0
     lowercase_count = 0
@@ -223,7 +269,7 @@ def validate_password_creation():
                 lowercase_count += 1
 
     if length_valid and uppercase_count and lowercase_count and number_count:
-        print("Password valid!\n") 
+        print("Password valid!\n")
         return password
     else:
         print("Password invalid. Please try again\n")
@@ -231,16 +277,21 @@ def validate_password_creation():
 
 
 def add_row(row):
-    print("success")
+    """
+    PLACEHOLDER
+    """
+    print(f"success {row}")
 
 
 def save_account_details(username, password, name):
     """
+    PLACEHOLDER
     """
     user_id = int(USERS_SHEET.col_values(1)[-1])+1
     user_row = [user_id, name, username, password]
-    
-    menu_selection = input("Please enter 1 to save details and setup account or 2 to reset details and start again:\n")
+
+    menu_selection = input("Please enter 1 to save details and setup account",
+                           "or 2 to reset details and start again:\n")
     print()
     # if validation:
     #     selection_int = int(save_account)
@@ -252,8 +303,9 @@ def save_account_details(username, password, name):
     #         create_account()
     # else:
     #     save_account_details(username, password, name)
-    
-    menu_choices = [{'name': add_row, 'param1': user_row}, {'name': create_account}]
+
+    menu_choices = [{'name': add_row, 'param1': user_row},
+                    {'name': create_account}]
 
     if validate_menu_choice(menu_selection, 2):
         action_menu_choice(menu_selection, menu_choices)
@@ -271,7 +323,7 @@ def create_account():
     valid_password = validate_password_creation()
     print("Finally, please tell us your name")
     name = input("Name:\n")
-    
+
     print(f"""
 You have entered the following details:
     Username: {valid_username}
@@ -280,10 +332,11 @@ You have entered the following details:
     """)
 
     save_account_details(valid_username, valid_password, name)
-    # Add another function for menu validation and selection based on above code
+    # Add another function for menu validation and selection
+    # based on above code
 
 
-def display_help(menu, id):
+def display_help(menu, user_id):
     """
     Called from either the main menu or account menu,
     displays information about the app and how to use it
@@ -295,7 +348,7 @@ def display_help(menu, id):
     if menu == 'main':
         main_menu()
     else:
-        account_menu(id)
+        account_menu(user_id)
 
 
 def validate_login_details(login_attempt):
@@ -305,13 +358,13 @@ def validate_login_details(login_attempt):
     usernames = USERS_SHEET.col_values(3)[1:]
     passwords = USERS_SHEET.col_values(4)[1:]
 
-    list = []
+    login_list = []
     for username, password in zip(usernames, passwords):
         user = {username: password}
-        list.append(user)
-    
+        login_list.append(user)
+
     try:
-        index = list.index(login_attempt) + 1
+        index = login_list.index(login_attempt) + 1
         user_id = int(USERS_SHEET.col_values(1)[index])
         print("Welcome back!\n")
         account_menu(user_id)
@@ -336,7 +389,7 @@ def login():
 
 def validate_menu_choice(response, limit):
     """
-    Validates menu selection and raises error if invalide response entered
+    Validates menu selection and raises error if invalid response entered
     """
     try:
         int(response)
@@ -344,19 +397,22 @@ def validate_menu_choice(response, limit):
             raise ValueError()
         return True
     except ValueError:
-        print(f"Invalid selection: Please choose a number between 1 and {limit}. You entered: {response}\n")
+        print("Invalid selection:",
+              f"Please choose a number between 1 and {limit}.",
+              f"You entered: {response}\n")
         return False
 
 
 def action_menu_choice(response, functions):
     """
+    Calls the correct function
     """
     function = functions[int(response)-1]
 
     function_name = function['name']
     parameters = []
-    for x in range(1, len(function)):
-        parameters.append(function['param' + str(x)])
+    for i in range(1, len(function)):
+        parameters.append(function['param' + str(i)])
 
     function_name(*parameters)
 
@@ -365,6 +421,12 @@ def main_menu():
     """
     Displays the main menu with options for the user to login, create account
     or view program information and instructions
+
+    Parameters: none
+
+    Returns: calls action_menu_choice function to select the next function to
+    run based on user's input. Provides funtcion name and parameters via a
+    list of dictionaries
     """
     print("MAIN MENU:\n")
     print(
@@ -375,15 +437,26 @@ def main_menu():
         """)
     menu_selection = input("Input 1, 2 or 3:\n")
     print()
-    
+
     menu_choices = [{'name': login}, {'name': create_account},
-    {'name': display_help, 'param1': 'main', 'param2': '0'}]
+                    {'name': display_help, 'param1': 'main', 'param2': '0'}]
+
     if validate_menu_choice(menu_selection, 3):
         action_menu_choice(menu_selection, menu_choices)
     else:
         main_menu()
 
 
-# Greet user and run program
-print("Welcome to the budget and savings tracker!\n")
+# Greet user and open the main menu
+# Logo created at https://patorjk.com/software/taag/#p=display&f=Stop&t=BUDGE
+print("""
+ ______  _     _ _____    ______ _______
+(____  \| |   | (____ \  / _____|_______)
+ ____)  ) |   | |_   \ \| /  ___ _____ 
+|  __  (| |   | | |   | | | (___)  ___)
+| |__)  ) |___| | |__/ /| \____/| |_____
+|______/ \______|_____/  \_____/|_______)
+
+""")
+print("Welcome to Budge: The budget and savings tracker!\n")
 main_menu()
