@@ -105,23 +105,32 @@ def add_entry(user_id):
     net = income - outgoing
     entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
 
-    # create seperate function for fitering entries?
-    all_entries = ENTRIES_SHEET.get_all_values()
+    user_entries = get_user_entries(user_id)
+
     user_entries_nums = []
-    for entry in all_entries:
-        try:
-            uid = int(entry[1])
-            if uid == user_id:
-                user_entries_nums.append(int(entry[2]))
-        except ValueError:
-            pass
+    for entry in user_entries:
+        user_entries_nums.append(int(entry[0]))
+
     user_entries_nums.sort()
-    # create seperate function for fitering entries?
 
     entry_num = user_entries_nums[-1]+1
 
     ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
                              income, outgoing, net])
+
+
+def validate_entry_number(entry_num, limit):
+    """
+    """
+    print(limit)
+    try:
+        int(entry_num)
+        if int(entry_num) <= limit:
+            pass
+    except ValueError:
+        return False
+
+    return True
 
 
 def remove_entry(user_id):
@@ -134,26 +143,50 @@ def remove_entry(user_id):
     Outputs: deletes row from entry data based on the user's unique ID
     and their inputted entry ID
     """
+    all_entries = ENTRIES_SHEET.get_all_values()[1:]
+    user_entries = get_user_entries(user_id)
+
     print("REMOVE ENTRY:\n")
-    entry_to_remove = input("Entry Number:\n")
+    while True:
+        entry_to_remove = input("Entry Number:\n")
+        if validate_entry_number(entry_to_remove, len(user_entries)):
+            break
 
-    entry_dicts = ENTRIES_SHEET.get_all_records()
-
-    for e_d in entry_dicts:
-        uid = e_d.get('User ID')
-        entry_num = e_d.get('Entry Number')
+    # refactor?
+    for entry in all_entries:
+        uid = int(entry[1])
+        entry_num = int(entry[2])
         if uid == user_id:
             if entry_num == int(entry_to_remove):
-                entry = entry_dicts.index(e_d) + 2
-                ENTRIES_SHEET.delete_rows(entry)
-    # ADD VALIDATION??
+                row_num = all_entries.index(entry) + 2
+                ENTRIES_SHEET.delete_rows(row_num)
+                print("Entry deleted.\n")
+                # else:
+                #     print("Deletion cancelled.\n")
 
 
 def edit_goal(user_id):
     """
     PLACEHOLDER
     """
-    print(f"success {user_id}")
+    print(f"accessing goal editor for {user_id}")
+
+
+def get_user_entries(user_id):
+    """
+    """
+    all_entries = ENTRIES_SHEET.get_all_values()
+
+    current_user = []
+    for entry in all_entries:
+        try:
+            uid = int(entry[1])
+            if uid == user_id:
+                current_user.append(entry[2:])
+        except ValueError:
+            pass
+
+    return current_user
 
 
 def display_table(user_id):
@@ -165,22 +198,11 @@ def display_table(user_id):
 
     Outputs: prints table of current user's spending data to the console
     """
-    # create seperate function for fitering entries?
-    all_entries = ENTRIES_SHEET.get_all_values()
-
-    current_user = []
-    for entry in all_entries:
-        try:
-            uid = int(entry[1])
-            if uid == user_id:
-                current_user.append(entry[2:])
-        except ValueError:
-            pass
-    # create seperate function for fitering entries?
+    user_entries = get_user_entries(user_id)
 
     user_sorted = []
     for m in MONTHS:
-        for entry in current_user:
+        for entry in user_entries:
             month = entry[1]
             if m == month:
                 user_sorted.append(entry)
@@ -189,8 +211,6 @@ def display_table(user_id):
     headers = ENTRIES_SHEET.row_values(1)[2:]
     print(tabulate(user_sorted, headers, tablefmt='psql'))
     print("Goal: \n")
-
-display_table(3)
 
 
 def account_menu(user_id):
@@ -241,7 +261,7 @@ def logout():
 
     Outputs: prints a message to the console and calls the main_menu() function
     """
-    print("Successfully logged out.")
+    print("Successfully logged out.\n")
     main_menu()
 
 
@@ -405,7 +425,7 @@ def display_help(menu, user_id):
     print("""The budget and savings tracker is a handy tool where you can keep
     track of your monthly earnings and spending and calculate a budget.
     """)
-    input("Press enter to return to menu\n")
+    input("Press enter to return\n")
     if menu == 'main':
         main_menu()
     else:
@@ -543,3 +563,23 @@ print("""
 """)
 print("Welcome to Budge: The budget and savings tracker!\n")
 main_menu()
+
+# user_id = 3
+# print("REMOVE ENTRY:\n")
+# entry_to_remove = input("Entry Number:\n")
+
+# all_entries = ENTRIES_SHEET.get_all_values()[1:]
+
+# for entry in all_entries:
+#     entry_id = int(entry[0])
+#     uid = int(entry[1])
+#     entry_num = int(entry[2])
+#     # print(f"{entry_id} {uid} {entry_num}")
+#     if uid == user_id:
+#         if entry_num == int(entry_to_remove):
+#             row_num = all_entries.index(entry) + 2
+#             print(f"now deleting: {entry} at row {row_num}")
+#             ENTRIES_SHEET.delete_rows(row_num)
+
+#         else:
+#             print("entry does not exist, please try again")
