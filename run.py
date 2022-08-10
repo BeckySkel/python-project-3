@@ -103,7 +103,10 @@ def add_entry(user_id):
     income = round(float(income), 2)
     outgoing = round(float(outgoing), 2)
     net = income - outgoing
-    entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
+    try:
+        entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
+    except IndexError:
+        entry_id = 1
 
     user_entries = get_user_entries(user_id)
 
@@ -113,20 +116,27 @@ def add_entry(user_id):
 
     user_entries_nums.sort()
 
-    entry_num = user_entries_nums[-1]+1
+    try:
+        entry_num = user_entries_nums[-1]+1
+    except IndexError:
+        entry_num = 1
 
     ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
                              income, outgoing, net])
 
 
-def validate_entry_number(entry_num, limit):
+def validate_entry_number(entry_num, user_entries):
     """
     """
-    print(limit)
     try:
         int(entry_num)
-        if int(entry_num) <= limit:
-            pass
+        entry_nums = []
+        for entry in user_entries:
+            entry_nums.append(int(entry[0]))
+        if int(entry_num) not in entry_nums:
+            print("Entry does not exist."
+                  f"Please input one of the following: {entry_nums}")
+            return False
     except ValueError:
         return False
 
@@ -149,7 +159,7 @@ def remove_entry(user_id):
     print("REMOVE ENTRY:\n")
     while True:
         entry_to_remove = input("Entry Number:\n")
-        if validate_entry_number(entry_to_remove, len(user_entries)):
+        if validate_entry_number(entry_to_remove, user_entries):
             break
 
     # refactor?
@@ -160,7 +170,7 @@ def remove_entry(user_id):
             if entry_num == int(entry_to_remove):
                 row_num = all_entries.index(entry) + 2
                 ENTRIES_SHEET.delete_rows(row_num)
-                print("Entry deleted.\n")
+                print("Entry removed.\n")
                 # else:
                 #     print("Deletion cancelled.\n")
 
