@@ -9,6 +9,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 # Imported to display the user's data in an easy-to-read table
 from tabulate import tabulate
+import os
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -95,6 +96,7 @@ def add_entry(user_id):
     running validation checks
     """
     print("ADD NEW ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
     while True:
         month = input("Month:\n").lower().capitalize()
         if check_exit(month):
@@ -173,9 +175,12 @@ def remove_entry(user_id):
     user_entries = get_user_entries(user_id)
 
     print("REMOVE ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
     while True:
         entry_to_remove = input("Entry Number:\n")
-        if validate_entry_number(entry_to_remove, user_entries):
+        if check_exit(entry_to_remove):
+            account_menu(user_id)
+        elif validate_entry_number(entry_to_remove, user_entries):
             break
 
     # refactor?
@@ -287,6 +292,8 @@ def logout():
 
     Outputs: prints a message to the console and calls the main_menu() function
     """
+    # code to clear terminal from https://stackoverflow.com/questions/2084508/clear-terminal-in-python
+    os.system('cls' if os.name == 'nt' else 'clear')
     print("Successfully logged out.\n")
     main_menu()
 
@@ -402,6 +409,7 @@ def create_account():
     validated password and name parameters
     """
     print("ACCOUNT SETUP:\n")
+    print("Input EXIT to return to menu.\n")
 
     while True:
         print("""Username must meet the following criteria:
@@ -409,7 +417,9 @@ def create_account():
     - unique
     """)
         username = input("Username:\n")
-        if validate_username_creation(username):
+        if check_exit(username):
+            main_menu()
+        elif validate_username_creation(username):
             break
     print(f"Username {username} is available!\n")
 
@@ -420,12 +430,16 @@ def create_account():
     - at least 1 number
     """)
         password = input("Password:\n")
-        if validate_password_creation(password):
+        if check_exit(password):
+            main_menu()
+        elif validate_password_creation(password):
             break
     print(f"Password {password} is valid!\n")
 
     print("Finally, please tell us your name")
     name = input("Name:\n")
+    if check_exit(name):
+        main_menu()
 
     print(f"""
 You have entered the following details:
@@ -496,8 +510,14 @@ def login():
     the user's input username and password
     """
     print("ACCOUNT LOGIN:\n")
+    print("Input EXIT to return to menu.\n")
+
     username = input("Username:\n")
+    if check_exit(username):
+        main_menu()
     password = input("Password:\n")
+    if check_exit(password):
+        main_menu()
     print()
 
     login_attempt = {username: password}
