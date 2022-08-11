@@ -31,6 +31,16 @@ MONTHS = [
     ]
 
 
+def check_exit(input_value):
+    """
+    """
+    if input_value.upper() == 'EXIT':
+        print("Exiting function and returning to menu.\n")
+        return True
+    
+    return False
+
+
 def validate_month(month_input):
     """
     Checks the format and spelling of the user's 'month' input against a list
@@ -87,17 +97,23 @@ def add_entry(user_id):
     print("ADD NEW ENTRY:\n")
     while True:
         month = input("Month:\n").lower().capitalize()
-        if validate_month(month):
+        if check_exit(month):
+            account_menu(user_id)
+        elif validate_month(month):
             break
 
     while True:
         income = input("Incoming(£):\n")
-        if validate_amount(income):
+        if check_exit(income):
+            account_menu(user_id)
+        elif validate_amount(income):
             break
 
     while True:
         outgoing = input("Outgoing(£):\n")
-        if validate_amount(outgoing):
+        if check_exit(outgoing):
+            account_menu(user_id)
+        elif validate_amount(outgoing):
             break
 
     income = round(float(income), 2)
@@ -573,23 +589,3 @@ print("""
 """)
 print("Welcome to Budge: The budget and savings tracker!\n")
 main_menu()
-
-# user_id = 3
-# print("REMOVE ENTRY:\n")
-# entry_to_remove = input("Entry Number:\n")
-
-# all_entries = ENTRIES_SHEET.get_all_values()[1:]
-
-# for entry in all_entries:
-#     entry_id = int(entry[0])
-#     uid = int(entry[1])
-#     entry_num = int(entry[2])
-#     # print(f"{entry_id} {uid} {entry_num}")
-#     if uid == user_id:
-#         if entry_num == int(entry_to_remove):
-#             row_num = all_entries.index(entry) + 2
-#             print(f"now deleting: {entry} at row {row_num}")
-#             ENTRIES_SHEET.delete_rows(row_num)
-
-#         else:
-#             print("entry does not exist, please try again")
