@@ -206,7 +206,25 @@ def edit_goal(user_id):
     """
     PLACEHOLDER
     """
-    print(f"accessing goal editor for {user_id}")
+    print("EDIT GOAL:\n")
+    print("Input EXIT to return to menu.\n")
+    print("""Please select a goal to calculate from the below menu:
+    1- Month (Check how much you're predicted to have saved my your chosen month)
+    2- Amount (Estimate how long it will take you to save this amount of money)
+    3- Budget (Check how much you should aim to save each month, based on how much you'd like to save and by when)
+        """)
+
+    menu_selection = input("Input 1, 2, or 3:\n")
+    print()
+
+    menu_choices = [{'name': calculate_month, 'param1': user_id},
+                    {'name': calculate_amount, 'param1': user_id},
+                    {'name': calculate_budget, 'param1': user_id}]
+
+    if validate_menu_choice(menu_selection, len(menu_choices)):
+        action_menu_choice(menu_selection, menu_choices)
+    else:
+        edit_goal(user_id)
 
 
 def get_user_entries(user_id):
