@@ -1,15 +1,16 @@
 """
 Module for running full program and interacting with database
 """
-# Write your code to expect a terminal of 80 characters wide and 24 rows high
+
+# Imported to clear terminal after logout
+import os
+# Imported to display the user's data in an easy-to-read table
+from tabulate import tabulate
 
 # Google Sheets and gspread set-up by Code Institute Love Sandwiches project
 # Imported to interact with savings_tracker database in Google Sheets
 import gspread
 from google.oauth2.service_account import Credentials
-# Imported to display the user's data in an easy-to-read table
-from tabulate import tabulate
-import os
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -34,11 +35,16 @@ MONTHS = [
 
 def check_exit(input_value):
     """
+    Checks if user has input 'exit' to cancel current action
+
+    Parameters: input_value: the value the user submitted in the input field
+
+    Ouputs: (boolean) returns True if 'exit' was entered, returns False if not
     """
     if input_value.upper() == 'EXIT':
         print("Exiting function and returning to menu.\n")
         return True
-    
+
     return False
 
 
@@ -220,6 +226,55 @@ def get_user_entries(user_id):
     return current_user
 
 
+def edit_entry(user_id):
+    """
+    """
+    all_entries = ENTRIES_SHEET.get_all_values()[1:]
+    user_entries = get_user_entries(user_id)
+
+    print("EDIT ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
+    while True:
+        entry_to_edit = input("Entry Number:\n")
+        if check_exit(entry_to_edit):
+            account_menu(user_id)
+        elif validate_entry_number(entry_to_edit, user_entries):
+            break
+
+    while True:
+        month = input("Month:\n").lower().capitalize()
+        if check_exit(month):
+            account_menu(user_id)
+        elif validate_month(month):
+            break
+
+    while True:
+        income = input("Incoming(£):\n")
+        if check_exit(income):
+            account_menu(user_id)
+        elif validate_amount(income):
+            break
+
+    while True:
+        outgoing = input("Outgoing(£):\n")
+        if check_exit(outgoing):
+            account_menu(user_id)
+        elif validate_amount(outgoing):
+            break
+
+    income = round(float(income), 2)
+    outgoing = round(float(outgoing), 2)
+    net = income - outgoing
+
+    for entry in all_entries:
+        uid = int(entry[1])
+        entry_num = int(entry[2])
+        if uid == user_id:
+            if entry_num == int(entry_to_edit):
+                row_num = all_entries.index(entry) + 2
+                ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [[month, income, outgoing, net]])
+
+
 def display_table(user_id):
     """
     Displays all of the current user's previous table entries
@@ -261,15 +316,17 @@ def account_menu(user_id):
     print("""Please select an option from the below menu
     1- Add new entry
     2- Remove entry
-    3- Edit Goal
-    4- Help
-    5- Logout
+    3- Edit entry
+    4- Edit goal
+    5- Help
+    6- Logout
         """)
     menu_selection = input("Input 1, 2, 3, 4 or 5:\n")
     print()
 
     menu_choices = [{'name': add_entry, 'param1': user_id},
                     {'name': remove_entry, 'param1': user_id},
+                    {'name': edit_entry, 'param1': user_id},
                     {'name': edit_goal, 'param1': user_id},
                     {'name': display_help, 'param1': 'account',
                     'param2': user_id}, {'name': logout}]
