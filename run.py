@@ -301,7 +301,41 @@ def calculate_amount(user_id):
     print(f"Based on your current entries, you will have saved £{goal_amount} in {months_left} months")
 
 
-calculate_amount(3)
+def calculate_budget(user_id):
+    """
+    """
+    print("GOAL EDITOR - BUDGET:\n")
+    print("Input EXIT to return to menu.\n")
+    while True:
+        goal_amount = input("Goal Amount(£):\n")
+        if check_exit(goal_amount):
+            account_menu(user_id)
+        elif validate_amount(goal_amount):
+            break
+    while True:
+        goal_month = input("Month:\n").lower().capitalize()
+        if check_exit(goal_month):
+            account_menu(user_id)
+        elif validate_month(goal_month):
+            break
+
+    user_entries = get_user_entries(user_id)
+
+    net_savings = []
+    months = []
+    for entry in user_entries:
+        net_savings.append(float(entry[-1]))
+        months.append(entry[1])
+
+    print(net_savings)
+    remainder = float(goal_amount) - sum(net_savings)
+    print(remainder)
+    months_difference = MONTHS.index(goal_month) - MONTHS.index(months[-1])
+    budget = round(remainder/months_difference, 2)
+    print(f"In order to save {goal_amount} by {goal_month} you'd have to save {budget} per month")
+
+
+calculate_budget(3)
 
 
 def edit_entry(user_id):
