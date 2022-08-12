@@ -91,8 +91,9 @@ def validate_amount(amount):
     return True
 
 
-def get_entry_inputs():
-    """"""
+def get_entry_inputs(user_id):
+    """
+    """
     while True:
         month = input("Month:\n").lower().capitalize()
         if check_exit(month):
@@ -118,7 +119,7 @@ def get_entry_inputs():
     outgoing = round(float(outgoing), 2)
     net = income - outgoing
 
-    return [income, outgoing, net]
+    return [month, income, outgoing, net]
 
 
 def add_entry(user_id):
@@ -133,46 +134,16 @@ def add_entry(user_id):
     """
     print("ADD NEW ENTRY:\n")
     print("Input EXIT to return to menu.\n")
-    entry_inputs = get_entry_inputs()
-    income = entry_inputs[0]
-    outgoing = entry_inputs[1]
-    net = entry_inputs[2]
+    entry_inputs = get_entry_inputs(user_id)
+    month, income, outgoing, net = entry_inputs
 
-    # while True:
-    #     month = input("Month:\n").lower().capitalize()
-    #     if check_exit(month):
-    #         account_menu(user_id)
-    #     elif validate_month(month):
-    #         break
-
-    # while True:
-    #     income = input("Incoming(£):\n")
-    #     if check_exit(income):
-    #         account_menu(user_id)
-    #     elif validate_amount(income):
-    #         break
-
-    # while True:
-    #     outgoing = input("Outgoing(£):\n")
-    #     if check_exit(outgoing):
-    #         account_menu(user_id)
-    #     elif validate_amount(outgoing):
-    #         break
-
-    # income = round(float(income), 2)
-    # outgoing = round(float(outgoing), 2)
-    # net = income - outgoing
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
     except IndexError:
         entry_id = 1
 
     user_entries = get_user_entries(user_id)
-
-    user_entries_nums = []
-    for entry in user_entries:
-        user_entries_nums.append(int(entry[0]))
-
+    user_entries_nums = [int(entry[0]) for entry in user_entries]
     user_entries_nums.sort()
 
     try:
@@ -202,6 +173,41 @@ def validate_entry_number(entry_num, user_entries):
     return True
 
 
+def get_entry_row(user_id, entry_num):
+    """
+    """
+    all_entries = ENTRIES_SHEET.get_all_values()[1:]
+
+    for entry in all_entries:
+        uid = int(entry[1])
+        num = int(entry[2])
+        if uid == user_id:
+            if entry_num == int(num):
+                row_num = all_entries.index(entry) + 2
+                return row_num
+
+
+def edit_entry(user_id):
+    """
+    """
+    user_entries = get_user_entries(user_id)
+
+    print("EDIT ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
+    while True:
+        entry_to_edit = input("Entry Number:\n")
+        if check_exit(entry_to_edit):
+            account_menu(user_id)
+        elif validate_entry_number(entry_to_edit, user_entries):
+            break
+
+    entry_inputs = get_entry_inputs(user_id)
+    month, income, outgoing, net = entry_inputs
+
+    row_num = get_entry_row(user_id, int(entry_to_edit))
+    ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [[month, income, outgoing, net]])
+
+
 def remove_entry(user_id):
     """
     Allows user to remove an entry from their monthly spending data
@@ -212,7 +218,6 @@ def remove_entry(user_id):
     Outputs: deletes row from entry data based on the user's unique ID
     and their inputted entry ID
     """
-    all_entries = ENTRIES_SHEET.get_all_values()[1:]
     user_entries = get_user_entries(user_id)
 
     print("REMOVE ENTRY:\n")
@@ -224,42 +229,9 @@ def remove_entry(user_id):
         elif validate_entry_number(entry_to_remove, user_entries):
             break
 
-    # refactor?
-    for entry in all_entries:
-        uid = int(entry[1])
-        entry_num = int(entry[2])
-        if uid == user_id:
-            if entry_num == int(entry_to_remove):
-                row_num = all_entries.index(entry) + 2
-                ENTRIES_SHEET.delete_rows(row_num)
-                print("Entry removed.\n")
-                # else:
-                #     print("Deletion cancelled.\n")
-
-
-# def edit_goal(user_id):
-#     """
-#     PLACEHOLDER
-#     """
-#     print("EDIT GOAL:\n")
-#     print("Input EXIT to return to menu.\n")
-#     print("""Please select a goal to calculate from the below menu:
-#     1- Month (Check how much you're predicted to have saved my your chosen month)
-#     2- Amount (Estimate how long it will take you to save this amount of money)
-#     3- Budget (Check how much you should aim to save each month, based on how much you'd like to save and by when)
-#         """)
-
-#     menu_selection = input("Input 1, 2, or 3:\n")
-#     print()
-
-#     menu_choices = [{'name': calculate_month, 'param1': user_id},
-#                     {'name': calculate_amount, 'param1': user_id},
-#                     {'name': calculate_budget, 'param1': user_id}]
-
-#     if validate_menu_choice(menu_selection, len(menu_choices)):
-#         action_menu_choice(menu_selection, menu_choices)
-#     else:
-#         edit_goal(user_id)
+    row_num = get_entry_row(user_id, int(entry_to_remove))
+    ENTRIES_SHEET.delete_rows(row_num)
+    print("Entry removed.\n")
 
 
 def get_user_entries(user_id):
@@ -309,55 +281,6 @@ def calculate_budget(user_id):
     months_difference = MONTHS.index(goal_month) - MONTHS.index(months[-1])
     budget = round(remainder/months_difference, 2)
     print(f"In order to save {goal_amount} by {goal_month} you'd have to save {budget} per month")
-
-
-def edit_entry(user_id):
-    """
-    """
-    all_entries = ENTRIES_SHEET.get_all_values()[1:]
-    user_entries = get_user_entries(user_id)
-
-    print("EDIT ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
-    while True:
-        entry_to_edit = input("Entry Number:\n")
-        if check_exit(entry_to_edit):
-            account_menu(user_id)
-        elif validate_entry_number(entry_to_edit, user_entries):
-            break
-
-    while True:
-        month = input("Month:\n").lower().capitalize()
-        if check_exit(month):
-            account_menu(user_id)
-        elif validate_month(month):
-            break
-
-    while True:
-        income = input("Incoming(£):\n")
-        if check_exit(income):
-            account_menu(user_id)
-        elif validate_amount(income):
-            break
-
-    while True:
-        outgoing = input("Outgoing(£):\n")
-        if check_exit(outgoing):
-            account_menu(user_id)
-        elif validate_amount(outgoing):
-            break
-
-    income = round(float(income), 2)
-    outgoing = round(float(outgoing), 2)
-    net = income - outgoing
-
-    for entry in all_entries:
-        uid = int(entry[1])
-        entry_num = int(entry[2])
-        if uid == user_id:
-            if entry_num == int(entry_to_edit):
-                row_num = all_entries.index(entry) + 2
-                ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [[month, income, outgoing, net]])
 
 
 def display_table(user_id):
@@ -750,7 +673,7 @@ print("""
 
 """)
 print("Welcome to Budge: The budget and savings tracker!\n")
-# main_menu()
+main_menu()
 
 ALL_ENTRIES = ENTRIES_SHEET.get_all_values()
 HEADERS = ENTRIES_SHEET.row_values(1)[2:]
@@ -859,13 +782,13 @@ class UserEntries(object):
 
 
 # Define some students
-becky = UserEntries(2, 700, "Nov")
+# becky = UserEntries(2, 700, "Nov")
 
-# Now we can get to the grades easily
-print(becky.get_entries())
-print()
-print(becky.sort_by_month())
-print()
-print(becky.display_table())
-print()
-print(becky.calculate_budget())
+# # Now we can get to the grades easily
+# print(becky.get_entries())
+# print()
+# print(becky.sort_by_month())
+# print()
+# print(becky.display_table())
+# print()
+# print(becky.calculate_budget())
