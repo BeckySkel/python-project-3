@@ -244,6 +244,36 @@ def get_user_entries(user_id):
     return current_user
 
 
+def calculate_month(user_id):
+    """
+    """
+    print("GOAL EDITOR - MONTH:\n")
+    print("Input EXIT to return to menu.\n")
+    while True:
+        month = input("Month:\n").lower().capitalize()
+        if check_exit(month):
+            account_menu(user_id)
+        elif validate_month(month):
+            break
+    user_entries = get_user_entries(user_id)
+
+    net_savings = []
+    months = []
+    for entry in user_entries:
+        net_savings.append(float(entry[-1]))
+        months.append(entry[1])
+
+    print(net_savings)
+    print(months)
+    average_savings = round(float(sum(net_savings)/len(net_savings)), 2)
+    print(average_savings)
+    months_difference = MONTHS.index(month) - MONTHS.index(months[-1])
+    print(f"Based on your current entries, you could have saved {average_savings * months_difference} by {month}")
+
+
+calculate_month(3)
+
+
 def edit_entry(user_id):
     """
     """
