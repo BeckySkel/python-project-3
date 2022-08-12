@@ -61,9 +61,14 @@ def validate_month(month_input):
     in month list, False if not
     """
     try:
-        MONTHS.index(f"{month_input}")
-    except ValueError:
-        print("Month must be in format Jan, Feb, Jul, Nov, etc.",
+        month = month_input.split()[0]
+        year = month_input.split()[1]
+        MONTHS.index(f"{month}")
+        int(year)
+        if len(year) != 4:
+            raise ValueError()
+    except (ValueError, IndexError):
+        print("Month must be in format MMM YYYY", "e.g. Jan 2021, Nov 1998",
               "Please try again.\n")
         return False
 
@@ -91,35 +96,33 @@ def validate_amount(amount):
     return True
 
 
-def get_entry_inputs(user_id):
-    """
-    """
+def get_month_input(user_id):
+    """"""
     while True:
-        month = input("Month:\n").lower().capitalize()
+        month = input("Month (MMM YYYY):\n").lower().capitalize()
         if check_exit(month):
             account_menu(user_id)
         elif validate_month(month):
             break
+    
+    return month
 
+
+def get_amount_input(user_id, input_request):
+    """"""
     while True:
-        income = input("Incoming(£):\n")
-        if check_exit(income):
+        amount = input(f"{input_request}:\n")
+        if check_exit(amount):
             account_menu(user_id)
-        elif validate_amount(income):
+        elif validate_amount(amount):
             break
 
-    while True:
-        outgoing = input("Outgoing(£):\n")
-        if check_exit(outgoing):
-            account_menu(user_id)
-        elif validate_amount(outgoing):
-            break
+    return round(float(amount), 2) 
 
-    income = round(float(income), 2)
-    outgoing = round(float(outgoing), 2)
-    net = income - outgoing
 
-    return [month, income, outgoing, net]
+def calculate_difference(num1, num2):
+    """"""
+    return num1 - num2
 
 
 def add_entry(user_id):
@@ -134,8 +137,11 @@ def add_entry(user_id):
     """
     print("ADD NEW ENTRY:\n")
     print("Input EXIT to return to menu.\n")
-    entry_inputs = get_entry_inputs(user_id)
-    month, income, outgoing, net = entry_inputs
+
+    month = get_month_input(user_id)
+    income = get_amount_input(user_id, "Income(£)")
+    outgoing = get_amount_input(user_id, "Outgoing(£)")
+    net = calculate_difference(income, outgoing)
 
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
@@ -201,8 +207,10 @@ def edit_entry(user_id):
         elif validate_entry_number(entry_to_edit, user_entries):
             break
 
-    entry_inputs = get_entry_inputs(user_id)
-    month, income, outgoing, net = entry_inputs
+    month = get_month_input(user_id)
+    income = get_amount_input(user_id, "Income(£)")
+    outgoing = get_amount_input(user_id, "Outgoing(£)")
+    net = calculate_difference(income, outgoing)
 
     row_num = get_entry_row(user_id, int(entry_to_edit))
     ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [[month, income, outgoing, net]])
@@ -230,8 +238,9 @@ def remove_entry(user_id):
             break
 
     row_num = get_entry_row(user_id, int(entry_to_remove))
+    row = ENTRIES_SHEET.row_values(row_num)[2:]
     ENTRIES_SHEET.delete_rows(row_num)
-    print("Entry removed.\n")
+    print(f"Entry {row} removed.\n")
 
 
 def get_user_entries(user_id):
@@ -256,30 +265,28 @@ def calculate_budget(user_id):
     """
     print("EDIT BUDGET:\n")
     print("Input EXIT to return to menu.\n")
-    while True:
-        goal_amount = input("Goal Amount(£):\n")
-        if check_exit(goal_amount):
-            account_menu(user_id)
-        elif validate_amount(goal_amount):
-            break
-    while True:
-        goal_month = input("Goal Month:\n").lower().capitalize()
-        if check_exit(goal_month):
-            account_menu(user_id)
-        elif validate_month(goal_month):
-            break
+
+    goal_amount = get_amount_input(user_id, "Goal Amount(£)")
+    goal_month = get_month_input(user_id)
 
     user_entries = get_user_entries(user_id)
 
-    net_savings = []
-    months = []
-    for entry in user_entries:
-        net_savings.append(float(entry[-1]))
-        months.append(entry[1])
+    all_savings = [float(entry[-1]) for entry in user_entries]
+    print(all_savings)
+    months = [entry[1] for entry in user_entries]
+    print(months)
 
-    remainder = float(goal_amount) - sum(net_savings)
-    months_difference = MONTHS.index(goal_month) - MONTHS.index(months[-1])
-    budget = round(remainder/months_difference, 2)
+    difference = calculate_difference(goal_amount, sum(all_savings))
+    print(difference)
+
+    months_difference = MONTHS.index(goal_month.split()[0]) - MONTHS.index(months[-1].split()[0])
+    years_difference = int(goal_month.split()[1]) - int(months[-1].split()[1])
+    total_months_difference = (years_difference*12) + months_difference
+
+    print(months_difference)
+    print(years_difference)
+    print(total_months_difference)
+    budget = round(difference/total_months_difference, 2)
     print(f"In order to save {goal_amount} by {goal_month} you'd have to save {budget} per month")
 
 
@@ -294,16 +301,28 @@ def display_table(user_id):
     """
     user_entries = get_user_entries(user_id)
 
-    user_sorted = []
+    sorted_by_month = []
     for m in MONTHS:
         for entry in user_entries:
-            month = entry[1]
+            month = entry[1].split()[0]
             if m == month:
-                user_sorted.append(entry)
+                sorted_by_month.append(entry)
+
+    entered_years = [int(entry[1].split()[1]) for entry in sorted_by_month]
+    entered_years.sort()
+    # https://www.w3schools.com/python/python_howto_remove_duplicates.asp
+    remove_dupicates = list(dict.fromkeys(entered_years))
+
+    sorted_by_year = []
+    for y in remove_dupicates:
+        for entry in sorted_by_month:
+            year = int(entry[1].split()[1])
+            if y == year:
+                sorted_by_year.append(entry)
 
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
-    print(tabulate(user_sorted, headers, tablefmt='psql'))
+    print(tabulate(sorted_by_year, headers, tablefmt='psql'))
     print("Goal: \n")
 
 
