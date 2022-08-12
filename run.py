@@ -91,18 +91,8 @@ def validate_amount(amount):
     return True
 
 
-def add_entry(user_id):
-    """
-    Allows user to add a new entry for their monthly spending data
-
-    Parameters: user_id: the unique identifier of the user's account,
-    used to manipulate the data of the user who is currently logged in
-
-    Outputs: appends user's entered spending data to the database after
-    running validation checks
-    """
-    print("ADD NEW ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
+def get_entry_inputs():
+    """"""
     while True:
         month = input("Month:\n").lower().capitalize()
         if check_exit(month):
@@ -127,6 +117,51 @@ def add_entry(user_id):
     income = round(float(income), 2)
     outgoing = round(float(outgoing), 2)
     net = income - outgoing
+
+    return [income, outgoing, net]
+
+
+def add_entry(user_id):
+    """
+    Allows user to add a new entry for their monthly spending data
+
+    Parameters: user_id: the unique identifier of the user's account,
+    used to manipulate the data of the user who is currently logged in
+
+    Outputs: appends user's entered spending data to the database after
+    running validation checks
+    """
+    print("ADD NEW ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
+    entry_inputs = get_entry_inputs()
+    income = entry_inputs[0]
+    outgoing = entry_inputs[1]
+    net = entry_inputs[2]
+
+    # while True:
+    #     month = input("Month:\n").lower().capitalize()
+    #     if check_exit(month):
+    #         account_menu(user_id)
+    #     elif validate_month(month):
+    #         break
+
+    # while True:
+    #     income = input("Incoming(£):\n")
+    #     if check_exit(income):
+    #         account_menu(user_id)
+    #     elif validate_amount(income):
+    #         break
+
+    # while True:
+    #     outgoing = input("Outgoing(£):\n")
+    #     if check_exit(outgoing):
+    #         account_menu(user_id)
+    #     elif validate_amount(outgoing):
+    #         break
+
+    # income = round(float(income), 2)
+    # outgoing = round(float(outgoing), 2)
+    # net = income - outgoing
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
     except IndexError:
@@ -202,29 +237,29 @@ def remove_entry(user_id):
                 #     print("Deletion cancelled.\n")
 
 
-def edit_goal(user_id):
-    """
-    PLACEHOLDER
-    """
-    print("EDIT GOAL:\n")
-    print("Input EXIT to return to menu.\n")
-    print("""Please select a goal to calculate from the below menu:
-    1- Month (Check how much you're predicted to have saved my your chosen month)
-    2- Amount (Estimate how long it will take you to save this amount of money)
-    3- Budget (Check how much you should aim to save each month, based on how much you'd like to save and by when)
-        """)
+# def edit_goal(user_id):
+#     """
+#     PLACEHOLDER
+#     """
+#     print("EDIT GOAL:\n")
+#     print("Input EXIT to return to menu.\n")
+#     print("""Please select a goal to calculate from the below menu:
+#     1- Month (Check how much you're predicted to have saved my your chosen month)
+#     2- Amount (Estimate how long it will take you to save this amount of money)
+#     3- Budget (Check how much you should aim to save each month, based on how much you'd like to save and by when)
+#         """)
 
-    menu_selection = input("Input 1, 2, or 3:\n")
-    print()
+#     menu_selection = input("Input 1, 2, or 3:\n")
+#     print()
 
-    menu_choices = [{'name': calculate_month, 'param1': user_id},
-                    {'name': calculate_amount, 'param1': user_id},
-                    {'name': calculate_budget, 'param1': user_id}]
+#     menu_choices = [{'name': calculate_month, 'param1': user_id},
+#                     {'name': calculate_amount, 'param1': user_id},
+#                     {'name': calculate_budget, 'param1': user_id}]
 
-    if validate_menu_choice(menu_selection, len(menu_choices)):
-        action_menu_choice(menu_selection, menu_choices)
-    else:
-        edit_goal(user_id)
+#     if validate_menu_choice(menu_selection, len(menu_choices)):
+#         action_menu_choice(menu_selection, menu_choices)
+#     else:
+#         edit_goal(user_id)
 
 
 def get_user_entries(user_id):
@@ -244,67 +279,10 @@ def get_user_entries(user_id):
     return current_user
 
 
-def calculate_month(user_id):
-    """
-    """
-    print("GOAL EDITOR - MONTH:\n")
-    print("Input EXIT to return to menu.\n")
-    while True:
-        month = input("Month:\n").lower().capitalize()
-        if check_exit(month):
-            account_menu(user_id)
-        elif validate_month(month):
-            break
-
-    user_entries = get_user_entries(user_id)
-
-    net_savings = []
-    months = []
-    for entry in user_entries:
-        net_savings.append(float(entry[-1]))
-        months.append(entry[1])
-
-    print(net_savings)
-    print(months)
-    average_savings = round(float(sum(net_savings)/len(net_savings)), 2)
-    print(average_savings)
-    months_difference = MONTHS.index(month) - MONTHS.index(months[-1])
-    print(f"Based on your current entries, you could have saved {average_savings * months_difference} by {month}")
-
-
-def calculate_amount(user_id):
-    """
-    """
-    print("GOAL EDITOR - AMOUNT:\n")
-    print("Input EXIT to return to menu.\n")
-    while True:
-        goal_amount = input("Goal Amount(£):\n")
-        if check_exit(goal_amount):
-            account_menu(user_id)
-        elif validate_amount(goal_amount):
-            break
-    
-    user_entries = get_user_entries(user_id)
-
-    net_savings = []
-    months = []
-    for entry in user_entries:
-        net_savings.append(float(entry[-1]))
-        months.append(entry[1])
-
-    print(net_savings)
-    remainder = float(goal_amount) - sum(net_savings)
-    print(remainder)
-    average_savings = round(float(sum(net_savings)/len(net_savings)), 2)
-    months_left = round(float(remainder/average_savings))
-    print(months_left)
-    print(f"Based on your current entries, you will have saved £{goal_amount} in {months_left} months")
-
-
 def calculate_budget(user_id):
     """
     """
-    print("GOAL EDITOR - BUDGET:\n")
+    print("EDIT BUDGET:\n")
     print("Input EXIT to return to menu.\n")
     while True:
         goal_amount = input("Goal Amount(£):\n")
@@ -313,7 +291,7 @@ def calculate_budget(user_id):
         elif validate_amount(goal_amount):
             break
     while True:
-        goal_month = input("Month:\n").lower().capitalize()
+        goal_month = input("Goal Month:\n").lower().capitalize()
         if check_exit(goal_month):
             account_menu(user_id)
         elif validate_month(goal_month):
@@ -327,15 +305,10 @@ def calculate_budget(user_id):
         net_savings.append(float(entry[-1]))
         months.append(entry[1])
 
-    print(net_savings)
     remainder = float(goal_amount) - sum(net_savings)
-    print(remainder)
     months_difference = MONTHS.index(goal_month) - MONTHS.index(months[-1])
     budget = round(remainder/months_difference, 2)
     print(f"In order to save {goal_amount} by {goal_month} you'd have to save {budget} per month")
-
-
-calculate_budget(3)
 
 
 def edit_entry(user_id):
@@ -429,7 +402,7 @@ def account_menu(user_id):
     1- Add new entry
     2- Remove entry
     3- Edit entry
-    4- Edit goal
+    4- Edit budget
     5- Help
     6- Logout
         """)
@@ -439,7 +412,7 @@ def account_menu(user_id):
     menu_choices = [{'name': add_entry, 'param1': user_id},
                     {'name': remove_entry, 'param1': user_id},
                     {'name': edit_entry, 'param1': user_id},
-                    {'name': edit_goal, 'param1': user_id},
+                    {'name': calculate_budget, 'param1': user_id},
                     {'name': display_help, 'param1': 'account',
                     'param2': user_id}, {'name': logout}]
 
@@ -777,4 +750,122 @@ print("""
 
 """)
 print("Welcome to Budge: The budget and savings tracker!\n")
-main_menu()
+# main_menu()
+
+ALL_ENTRIES = ENTRIES_SHEET.get_all_values()
+HEADERS = ENTRIES_SHEET.row_values(1)[2:]
+
+
+class UserEntries(object):
+    """
+    A class used to represent the user currently logged in
+
+    Attributes:
+    user_id : int
+        the user's unique identifier
+    name : str
+        name of the user
+    username : str
+        the user's chosen username
+    password : str
+        the user's chosen password
+    goal_amount : float
+        the amount (in pounds£) that the user is hoping to save
+    goal_month : str
+        the month which the user is hoping to save by
+
+    Methods:
+    get_entries(self)
+        gets all of the user's submitted monthly spending
+    sort_by_month(self)
+        sorts the user's entries by month
+    display_table(self)
+        displays the user's entries in an easy-to-read table
+    calculate_total_savings()
+    calculate_budget()
+        
+    """
+    def __init__(self, user_id, goal_amount, goal_month):
+        self.user_id = user_id
+        # self.name = name
+        # self.username = username
+        # self.password = password
+        self.goal_amount = goal_amount
+        self.goal_month = goal_month
+
+    def get_entries(self):
+        user_entries = []
+        for entry in ALL_ENTRIES:
+            try:
+                uid = int(entry[1])
+                if uid == self.user_id:
+                    user_entries.append(entry[2:])
+            except ValueError:
+                pass
+
+        return user_entries
+
+    def sort_by_month(self):
+        user_entries = self.get_entries()
+        user_sorted = []
+        for m in MONTHS:
+            for entry in user_entries:
+                month = entry[1]
+                if m == month:
+                    user_sorted.append(entry)
+
+        return user_sorted
+
+    def display_table(self):
+        sorted_entries = self.sort_by_month()
+        # Code for creating table from official tabulate documentation
+        return tabulate(sorted_entries, HEADERS, tablefmt='psql')
+
+    def calculate_total_savings(self):
+        user_entries = self.sort_by_month()
+
+        net_savings = [float(entry[-1]) for entry in user_entries]
+        total_savings = sum(net_savings)
+
+        return total_savings
+
+    def calculate_budget(self):
+        user_entries = self.sort_by_month()
+
+        recent_month = user_entries[-1][1]
+
+        amount_difference = self.goal_amount - self.calculate_total_savings()
+        months_difference = MONTHS.index(self.goal_month) - MONTHS.index(recent_month)
+        budget = round(amount_difference/months_difference, 2)
+        return f"In order to save {self.goal_amount} by {self.goal_month} you'd have to save {budget} per month"
+
+
+
+
+# class UserEntries(object):
+#     def __init__(self, entry_ids, user_id, entry_nums, months,
+#                  incomes, outgoings, net):
+#         self.user_id = user_id
+#         self.entry_ids = entry_ids
+#         self.user_id = user_id
+#         self.entry_nums = entry_nums
+#         self.months = months
+#         self.incomes = incomes
+#         self.ougoings = outgoings
+#         self.net = net
+
+    # def get_an_entry(self):
+
+
+
+# Define some students
+becky = UserEntries(2, 700, "Nov")
+
+# Now we can get to the grades easily
+print(becky.get_entries())
+print()
+print(becky.sort_by_month())
+print()
+print(becky.display_table())
+print()
+print(becky.calculate_budget())
