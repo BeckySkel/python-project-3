@@ -133,6 +133,7 @@ def get_month_input(user_id):
         if check_exit(month):
             account_menu(user_id)
         elif validate_month_format(month):
+            # https://www.geeksforgeeks.org/python-program-split-join-string/#:~:text=the%20split()%20method%20in,joined%20by%20the%20str%20separator.
             month = " ".join(month.split())
             break
 
@@ -190,7 +191,7 @@ def add_entry(user_id):
             break
     income = get_amount_input(user_id, "Income(£)")
     outgoing = get_amount_input(user_id, "Outgoing(£)")
-    net = calculate_difference(income, outgoing)
+    savings = calculate_difference(income, outgoing)
     entry_num = calc_next_entry_num(user_id)
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
@@ -198,7 +199,7 @@ def add_entry(user_id):
         entry_id = 1
 
     ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
-                             income, outgoing, net])
+                             income, outgoing, savings])
 
 
 def validate_entry_number(entry_num, user_entries):
@@ -233,19 +234,27 @@ def get_entry_row(user_id, entry_num):
                 return row_num
 
 
-def edit_entry(user_id):
-    """
-    """
+def get_entry_to_edit(user_id):
+    """"""
     user_entries = get_user_entries(user_id)
 
-    print("EDIT ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
     while True:
         entry_to_edit = input("Entry Number:\n")
         if check_exit(entry_to_edit):
             account_menu(user_id)
         elif validate_entry_number(entry_to_edit, user_entries):
             break
+
+    return entry_to_edit
+
+
+def edit_entry(user_id):
+    """
+    """
+    print("EDIT ENTRY:\n")
+    print("Input EXIT to return to menu.\n")
+
+    entry_to_edit = get_entry_to_edit(user_id)
 
     month = get_month_input(user_id)
     income = get_amount_input(user_id, "Income(£)")
@@ -266,16 +275,10 @@ def remove_entry(user_id):
     Outputs: deletes row from entry data based on the user's unique ID
     and their inputted entry ID
     """
-    user_entries = get_user_entries(user_id)
-
     print("REMOVE ENTRY:\n")
     print("Input EXIT to return to menu.\n")
-    while True:
-        entry_to_remove = input("Entry Number:\n")
-        if check_exit(entry_to_remove):
-            account_menu(user_id)
-        elif validate_entry_number(entry_to_remove, user_entries):
-            break
+
+    entry_to_remove = get_entry_to_edit(user_id)
 
     row_num = get_entry_row(user_id, int(entry_to_remove))
     row_data = ENTRIES_SHEET.row_values(row_num)[2:]
@@ -283,21 +286,14 @@ def remove_entry(user_id):
     print(f"Entry {row_data} removed.\n")
 
 
-# def get_user_entries(user_id):
-#     """
-#     """
-#     all_entries = ENTRIES_SHEET.get_all_values()
+def calculate_total_savings(user_id):
+    """"""
+    user_entries = get_user_entries(user_id)
 
-#     current_user = []
-#     for entry in all_entries:
-#         try:
-#             uid = int(entry[1])
-#             if uid == user_id:
-#                 current_user.append(entry[2:])
-#         except ValueError:
-#             pass
-
-#     return current_user
+    all_savings = sum([float(entry[-1]) for entry in user_entries])
+    print(all_savings)
+    
+    return all_savings
 
 
 def calculate_budget(user_id):
@@ -309,12 +305,8 @@ def calculate_budget(user_id):
     goal_amount = get_amount_input(user_id, "Goal Amount(£)")
     goal_month = get_month_input(user_id)
 
-    user_entries = get_user_entries(user_id)
-
-    all_savings = [float(entry[-1]) for entry in user_entries]
-    print(all_savings)
+    all_savings = calculate_total_savings(user_id)
     months = [entry[1] for entry in user_entries]
-    print(months)
 
     difference = calculate_difference(goal_amount, sum(all_savings))
     print(difference)
