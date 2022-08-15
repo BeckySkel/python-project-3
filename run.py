@@ -398,7 +398,7 @@ def edit_budget(user_id):
 
     print(f"In order to save {goal_amount} by {goal_date} you'd have to save {budget} per month.")
     print(f"Based on your average income of {average_income},",
-          f"this would mean limiting your spending to around {spending_budget}.")
+          f"this would mean limiting your spending to around {spending_budget}")
     save_budget_info(user_id, goal_amount, goal_date)
 
 
@@ -426,9 +426,6 @@ def display_table(user_id):
         print(f"Monthly Savings Goal(£): {savings_goal}\n")
     except IndexError:
         print()
-
-    # savings_goal = calculate_budget(user_id, goal_amount, goal_date)    
-    # print(f"Monthly Savings Goal(£): {savings_goal}\n")
 
 
 def account_menu(user_id):
@@ -472,6 +469,12 @@ def account_menu(user_id):
     account_menu(user_id)
 
 
+def clear_terminal():
+    """"""
+    # code to clear terminal from https://stackoverflow.com/questions/2084508/clear-terminal-in-python
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
 def logout():
     """
     Returns the user to the main menu and lets them know that they have
@@ -481,8 +484,7 @@ def logout():
 
     Outputs: prints a message to the console and calls the main_menu() function
     """
-    # code to clear terminal from https://stackoverflow.com/questions/2084508/clear-terminal-in-python
-    os.system('cls' if os.name == 'nt' else 'clear')
+    clear_terminal()
     print("Successfully logged out.\n")
     main_menu()
 
@@ -496,10 +498,9 @@ def validate_username_creation(username):
 
     Outputs: returns username when passes validation
     """
-    username_length = len(username)
-
     usernames = USERS_SHEET.col_values(3)[1:]
 
+    username_length = len(username)
     if username_length < 5:
         print("Username too short, please try again\n")
         return False
@@ -549,9 +550,9 @@ def validate_password_creation(password):
 
 def append_user_row(row):
     """
-    PLACEHOLDER
     """
     USERS_SHEET.append_row(row)
+    clear_terminal()
     print(f"Welcome {row[1]}!")
     print("Account susccessfully created\n")
 
@@ -652,12 +653,15 @@ def display_help(menu, user_id):
     Outputs: calls back to either main or account menu based on first parameter
     """
     print("""
-    BUDGE is a handy tool where you can keep track of your monthly
-    spending and saving. Whether you're saving for a house or a holiday,
-    BUDGE can guide  
-    
-    Simply input your monthly income and total outgoing and let BUDGE calcualte your savings and how this compares to your set budget.
-    Need to calculate a suitable budget? BUDGe can do that too!
+    BUDGE is a handy tool where you can keep track of your monthly spending
+    and saving. Whether you're saving for a house or a holiday, BUDGE provides
+    a friendly push in the right direction by analysing your spending data
+    and providing insights on how much you should be saving each month. 
+        
+    Start by entering your monthly incoming and outgoing and BUDGE
+    will calculate your savings. After you've entered a few months data,
+    why not set a saving goal and see how much you'll need to save each month
+    in order to reach it? 
     """)
     input("Press enter to return\n")
     if menu == 'main':
@@ -686,8 +690,7 @@ def validate_login_details(login_attempt):
     try:
         index = login_list.index(login_attempt) + 1
         user_id = int(USERS_SHEET.col_values(1)[index])
-        # code to clear terminal from https://stackoverflow.com/questions/2084508/clear-terminal-in-python
-        os.system('cls' if os.name == 'nt' else 'clear')
+        clear_terminal()
         print("Welcome back!\n")
         account_menu(user_id)
     except ValueError:
