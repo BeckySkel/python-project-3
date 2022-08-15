@@ -65,7 +65,7 @@ def check_exit(input_value):
     return False
 
 
-def validate_month(month_input):
+def validate_month_format(month_input):
     """
     Checks the format and spelling of the user's 'month' input against a list
     of all 12 months when adding/editing an entry to ensure consistency and
@@ -116,9 +116,11 @@ def validate_amount(amount):
     """
     try:
         float(amount)
+        if float(amount) < 0:
+            raise ValueError
     except ValueError:
-        print("Amount must be a number (will be rounded to 2 decimal places).",
-              f"You entered {amount}. Please try again")
+        print("Amount must be a positive number (will be rounded to 2 decimal places).",
+              f"You entered {amount}. Please try again\n")
         return False
 
     return True
@@ -130,10 +132,9 @@ def get_month_input(user_id):
         month = input("Month (MMM YYYY):\n").lower().capitalize()
         if check_exit(month):
             account_menu(user_id)
-        elif validate_month(month):
+        elif validate_month_format(month):
             month = " ".join(month.split())
-            if prevent_duplicates(month, user_id):
-                break
+            break
 
     return month
 
@@ -155,6 +156,21 @@ def calculate_difference(num1, num2):
     return num1 - num2
 
 
+def calc_next_entry_num(user_id):
+    """
+    """
+    user_entries = get_user_entries(user_id)
+    user_entries_nums = [int(entry[0]) for entry in user_entries]
+    user_entries_nums.sort()
+
+    try:
+        entry_num = user_entries_nums[-1]+1
+    except IndexError:
+        entry_num = 1
+
+    return entry_num
+
+
 def add_entry(user_id):
     """
     Allows user to add a new entry for their monthly spending data
@@ -168,24 +184,18 @@ def add_entry(user_id):
     print("ADD NEW ENTRY:\n")
     print("Input EXIT to return to menu.\n")
 
-    month = get_month_input(user_id)
+    while True:
+        month = get_month_input(user_id)
+        if prevent_duplicates(month, user_id):
+            break
     income = get_amount_input(user_id, "Income(£)")
     outgoing = get_amount_input(user_id, "Outgoing(£)")
     net = calculate_difference(income, outgoing)
-
+    entry_num = calc_next_entry_num(user_id)
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
     except IndexError:
         entry_id = 1
-
-    user_entries = get_user_entries(user_id)
-    user_entries_nums = [int(entry[0]) for entry in user_entries]
-    user_entries_nums.sort()
-
-    try:
-        entry_num = user_entries_nums[-1]+1
-    except IndexError:
-        entry_num = 1
 
     ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
                              income, outgoing, net])
