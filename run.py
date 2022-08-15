@@ -31,6 +31,31 @@ MONTHS = [
     ]
 
 
+def display_logo():
+    """"""
+    # Logo created at https://patorjk.com/software/taag/#p=display&f=Stop&t=BUDGE
+    print("""
+ ______  _     _ _____    ______ _______
+(____  \| |   | (____ \  / _____|_______)
+ ____)  ) |   | |_   \ \| /  ___ _____ 
+|  __  (| |   | | |   | | | (___)  ___)
+| |__)  ) |___| | |__/ /| \____/| |_____
+|______/ \______|_____/  \_____/|_______)
+
+""")
+
+
+def confirm_action(action):
+    """"""
+    print(f"Please enter 1 to confirm {action} or 2 to cancel.")
+    menu_selection = input("Input 1 or 2:\n")
+    print()
+    if validate_menu_choice(menu_selection, 2):
+        return True if int(menu_selection) == 1 else False
+    else:
+        confirm_action(action)
+
+
 def get_user_entries(user_id):
     """
     """
@@ -222,8 +247,14 @@ def add_entry(user_id):
     except IndexError:
         entry_id = 1
 
-    ENTRIES_SHEET.append_row([entry_id, user_id, entry_num, month,
-                             income, outgoing, savings])
+    entry_list = [entry_id, user_id, entry_num, month, income, outgoing, savings]
+
+    print()
+    print(f"You have entered {entry_list}\n")
+    if confirm_action('add entry'):
+        ENTRIES_SHEET.append_row(entry_list)
+    else:
+        print("Action cancelled. Data not saved")
 
 
 def validate_entry_number(entry_num, user_entries):
@@ -473,6 +504,7 @@ def clear_terminal():
     """"""
     # code to clear terminal from https://stackoverflow.com/questions/2084508/clear-terminal-in-python
     os.system('cls' if os.name == 'nt' else 'clear')
+    display_logo()
 
 
 def logout():
@@ -578,9 +610,11 @@ def save_account_details(username, password, name):
           "details and start again:\n")
     menu_selection = input("Input 1 or 2:\n")
     print()
-
+    
     menu_choices = [{'name': append_user_row, 'param1': user_row},
                     {'name': create_account}]
+
+    # if confirm_action():
 
     if validate_menu_choice(menu_selection, len(menu_choices)):
         action_menu_choice(menu_selection, menu_choices)
@@ -796,18 +830,15 @@ def main_menu():
 
 
 # Greet user and open the main menu
-# Logo created at https://patorjk.com/software/taag/#p=display&f=Stop&t=BUDGE
-print("""
- ______  _     _ _____    ______ _______
-(____  \| |   | (____ \  / _____|_______)
- ____)  ) |   | |_   \ \| /  ___ _____ 
-|  __  (| |   | | |   | | | (___)  ___)
-| |__)  ) |___| | |__/ /| \____/| |_____
-|______/ \______|_____/  \_____/|_______)
-
-""")
+display_logo()
 print("Welcome to Budge: The budget and savings tracker!\n")
 main_menu()
+
+
+
+
+
+
 
 # ALL_ENTRIES = ENTRIES_SHEET.get_all_values()
 # HEADERS = ENTRIES_SHEET.row_values(1)[2:]
