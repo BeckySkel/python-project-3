@@ -2,9 +2,7 @@
 Module for running full program and interacting with database
 """
 
-# Imported to clear terminal after logout
 import os
-# Imported to display the user's data in an easy-to-read table
 from tabulate import tabulate
 
 # Google Sheets and gspread set-up by Code Institute Love Sandwiches project
@@ -48,6 +46,33 @@ def get_user_entries(user_id):
             pass
 
     return current_user
+
+
+def entries_by_date(user_id):
+    """"""
+    user_entries = get_user_entries(user_id)
+
+    sorted_by_month = []
+    for m in MONTHS:
+        for entry in user_entries:
+            month = entry[1].split()[0]
+            if m == month:
+                sorted_by_month.append(entry)
+
+    entered_years = [int(entry[1].split()[1]) for entry in sorted_by_month]
+    entered_years.sort()
+    # Code to remove duplicates from
+    # https://www.w3schools.com/python/python_howto_remove_duplicates.asp
+    remove_dupicates = list(dict.fromkeys(entered_years))
+
+    sorted_by_year = []
+    for y in remove_dupicates:
+        for entry in sorted_by_month:
+            year = int(entry[1].split()[1])
+            if y == year:
+                sorted_by_year.append(entry)
+
+    return sorted_by_year
 
 
 def check_exit(input_value):
@@ -115,7 +140,6 @@ def validate_amount(amount):
     False if not
     """
     try:
-        float(amount)
         if float(amount) < 0:
             raise ValueError
     except ValueError:
@@ -133,11 +157,11 @@ def get_month_input(user_id, input_request):
         if check_exit(month):
             account_menu(user_id)
         elif validate_month_format(month):
+            # Splitting and joining string to remove extra whitespace
+            # in user response inspired by below tutorial
             # https://www.geeksforgeeks.org/python-program-split-join-string/#:~:text=the%20split()%20method%20in,joined%20by%20the%20str%20separator.
             month = " ".join(month.split())
-            break
-
-    return month
+            return month
 
 
 def get_amount_input(user_id, input_request):
@@ -295,38 +319,47 @@ def calculate_total_savings(user_id):
     return all_savings
 
 
-def save_budget_info(user_id, goal_amount, goal_date):
+def calc_months_difference(user_id, goal_date):
     """"""
+    all_month_entries = [entry[1] for entry in entries_by_date(user_id)]
+
+    month_index = MONTHS.index(goal_date.split()[0])
+    latest_month = MONTHS.index(all_month_entries[-1].split()[0])
+    months_difference = calculate_difference(month_index, latest_month)
+
+    goal_year = int(goal_date.split()[1])
+    latest_year = int(all_month_entries[-1].split()[1])
+    years_difference = calculate_difference(goal_year, latest_year)
+
+    return (years_difference*12) + months_difference
+
+
+def get_user_row(user_id):
+    """
+    """
     all_users = USERS_SHEET.get_all_values()[1:]
 
     for entry in all_users:
         uid = int(entry[0])
         if uid == user_id:
-            row_num = all_users.index(entry) + 2
-            USERS_SHEET.update(f'E{row_num}:F{row_num}',
-                               [[goal_amount, goal_date]])
+            return all_users.index(entry) + 2
+
+
+def save_budget_info(user_id, goal_amount, goal_date):
+    """"""
+    row_num = get_user_row(user_id)
+    USERS_SHEET.update(f'E{row_num}:F{row_num}', [[goal_amount, goal_date]])
 
 
 def calculate_budget(user_id, goal_amount, goal_date):
     """
     """
     all_savings = calculate_total_savings(user_id)
-    all_month_entries = [entry[1] for entry in get_user_entries(user_id)]
 
-    savings_difference = calculate_difference(goal_amount, all_savings)
+    savings_difference = calculate_difference(float(goal_amount), all_savings)
+    total_months_difference = calc_months_difference(user_id, goal_date)
 
-    goal_index = MONTHS.index(goal_date.split()[0])
-    latest_month = MONTHS.index(all_month_entries[-1].split()[0])
-    months_difference = calculate_difference(goal_index, latest_month)
-
-    goal_year = int(goal_date.split()[1])
-    latest_year = int(all_month_entries[-1].split()[1])
-    years_difference = calculate_difference(goal_year, latest_year)
-
-    total_months_difference = (years_difference*12) + months_difference
-
-    budget = round(savings_difference/total_months_difference, 2)
-    return budget
+    return round(savings_difference/total_months_difference, 2)
 
 
 def calculate_average(list):
@@ -340,13 +373,28 @@ def edit_budget(user_id):
     print("EDIT BUDGET:\n")
     print("Input EXIT to return to menu.\n")
 
-    goal_amount = get_amount_input(user_id, "Savings Goal(£)")
-    goal_date = get_month_input(user_id, "Goal Month(MMM YYYY)")
+    while True:
+        goal_amount = get_amount_input(user_id, "Savings Goal(£)")
+        if goal_amount > calculate_total_savings(user_id):
+            break
+        else:
+            print("Savings goal must be higher than current total savings. Please try again")
+
+    try:
+        while True:
+            goal_date = get_month_input(user_id, "Goal Month(MMM YYYY)")
+            if calc_months_difference(user_id, goal_date) > 0:
+                break
+            else:
+                print("Goal month must be later than last entry. Please try again")
+    except IndexError:
+        print("No spending data available. You must add at least 1 entry before setting a budget.")
+        return
 
     budget = calculate_budget(user_id, goal_amount, goal_date)
     user_entries = get_user_entries(user_id)
     average_income = calculate_average([float(entry[2]) for entry in user_entries])
-    spending_budget = round(float(average_income - budget), 2)
+    spending_budget = round(float(calculate_difference(average_income, budget)), 2)
 
     print(f"In order to save {goal_amount} by {goal_date} you'd have to save {budget} per month.")
     print(f"Based on your average income of {average_income},",
@@ -363,33 +411,24 @@ def display_table(user_id):
 
     Outputs: prints table of current user's spending data to the console
     """
-    user_entries = get_user_entries(user_id)
-
-    sorted_by_month = []
-    for m in MONTHS:
-        for entry in user_entries:
-            month = entry[1].split()[0]
-            if m == month:
-                sorted_by_month.append(entry)
-
-    entered_years = [int(entry[1].split()[1]) for entry in sorted_by_month]
-    entered_years.sort()
-    # https://www.w3schools.com/python/python_howto_remove_duplicates.asp
-    remove_dupicates = list(dict.fromkeys(entered_years))
-
-    sorted_by_year = []
-    for y in remove_dupicates:
-        for entry in sorted_by_month:
-            year = int(entry[1].split()[1])
-            if y == year:
-                sorted_by_year.append(entry)
-
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
-    print(tabulate(sorted_by_year, headers, tablefmt='psql'))
+    print(tabulate(entries_by_date(user_id), headers, tablefmt='psql'))
+
     total_savings = calculate_total_savings(user_id)
-    print(f"Total: {total_savings}\n")
-    # print("Budget: \n")
+    print(f"Total Savings(£): {total_savings}")
+
+    user_row = USERS_SHEET.row_values(get_user_row(user_id))
+    try:
+        goal_amount, goal_date = user_row[4], user_row[5]
+        print(f"Overall Savings Goal(£): {goal_amount} by {goal_date}")
+        savings_goal = calculate_budget(user_id, goal_amount, goal_date)    
+        print(f"Monthly Savings Goal(£): {savings_goal}\n")
+    except IndexError:
+        print()
+
+    # savings_goal = calculate_budget(user_id, goal_amount, goal_date)    
+    # print(f"Monthly Savings Goal(£): {savings_goal}\n")
 
 
 def account_menu(user_id):
