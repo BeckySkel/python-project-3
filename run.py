@@ -126,10 +126,10 @@ def validate_amount(amount):
     return True
 
 
-def get_month_input(user_id):
+def get_month_input(user_id, input_request):
     """"""
     while True:
-        month = input("Month (MMM YYYY):\n").lower().capitalize()
+        month = input(f"{input_request}:\n").lower().capitalize()
         if check_exit(month):
             account_menu(user_id)
         elif validate_month_format(month):
@@ -186,7 +186,7 @@ def add_entry(user_id):
     print("Input EXIT to return to menu.\n")
 
     while True:
-        month = get_month_input(user_id)
+        month = get_month_input(user_id, "Month (MMM YYYY)")
         if prevent_duplicates(month, user_id):
             break
     income = get_amount_input(user_id, "Income(£)")
@@ -256,7 +256,7 @@ def edit_entry(user_id):
 
     entry_to_edit = get_entry_to_edit(user_id)
 
-    month = get_month_input(user_id)
+    month = get_month_input(user_id, "Month (MMM YYYY)")
     income = get_amount_input(user_id, "Income(£)")
     outgoing = get_amount_input(user_id, "Outgoing(£)")
     savings = calculate_difference(income, outgoing)
@@ -291,47 +291,67 @@ def calculate_total_savings(user_id):
     user_entries = get_user_entries(user_id)
 
     all_savings = sum([float(entry[-1]) for entry in user_entries])
-    print(all_savings)
     
     return all_savings
 
 
-def calculate_budget(user_id):
-    """
-    """
-    print("EDIT BUDGET:\n")
-    print("Input EXIT to return to menu.\n")
-
-    goal_amount = get_amount_input(user_id, "Goal Amount(£)")
-    goal_month = get_month_input(user_id)
-
-    all_savings = calculate_total_savings(user_id)
-    months = [entry[1] for entry in user_entries]
-
-    difference = calculate_difference(goal_amount, sum(all_savings))
-    print(difference)
-
-    months_difference = MONTHS.index(goal_month.split()[0]) - MONTHS.index(months[-1].split()[0])
-    years_difference = int(goal_month.split()[1]) - int(months[-1].split()[1])
-    total_months_difference = (years_difference*12) + months_difference
-
-    print(months_difference)
-    print(years_difference)
-    print(total_months_difference)
-    budget = round(difference/total_months_difference, 2)
-    print(f"In order to save {goal_amount} by {goal_month} you'd have to save {budget} per month")
-
-    # row_num = get_entry_row(user_id, int(entry_to_edit))
-
+def save_budget_info(user_id, goal_amount, goal_date):
+    """"""
     all_users = USERS_SHEET.get_all_values()[1:]
 
     for entry in all_users:
         uid = int(entry[0])
         if uid == user_id:
             row_num = all_users.index(entry) + 2
-            USERS_SHEET.update(f'E{row_num}:F{row_num}', [[goal_amount, goal_month]])
-    
-    
+            USERS_SHEET.update(f'E{row_num}:F{row_num}',
+                               [[goal_amount, goal_date]])
+
+
+def calculate_budget(user_id, goal_amount, goal_date):
+    """
+    """
+    all_savings = calculate_total_savings(user_id)
+    all_month_entries = [entry[1] for entry in get_user_entries(user_id)]
+
+    savings_difference = calculate_difference(goal_amount, all_savings)
+
+    goal_index = MONTHS.index(goal_date.split()[0])
+    latest_month = MONTHS.index(all_month_entries[-1].split()[0])
+    months_difference = calculate_difference(goal_index, latest_month)
+
+    goal_year = int(goal_date.split()[1])
+    latest_year = int(all_month_entries[-1].split()[1])
+    years_difference = calculate_difference(goal_year, latest_year)
+
+    total_months_difference = (years_difference*12) + months_difference
+
+    budget = round(savings_difference/total_months_difference, 2)
+    return budget
+
+
+def calculate_average(list):
+    """"""
+    average = sum(list)/len(list)
+    return round(float(average), 2)
+
+
+def edit_budget(user_id):
+    """"""
+    print("EDIT BUDGET:\n")
+    print("Input EXIT to return to menu.\n")
+
+    goal_amount = get_amount_input(user_id, "Savings Goal(£)")
+    goal_date = get_month_input(user_id, "Goal Month(MMM YYYY)")
+
+    budget = calculate_budget(user_id, goal_amount, goal_date)
+    user_entries = get_user_entries(user_id)
+    average_income = calculate_average([float(entry[2]) for entry in user_entries])
+    spending_budget = round(float(average_income - budget), 2)
+
+    print(f"In order to save {goal_amount} by {goal_date} you'd have to save {budget} per month.")
+    print(f"Based on your average income of {average_income},",
+          f"this would mean limiting your spending to around {spending_budget}.")
+    save_budget_info(user_id, goal_amount, goal_date)
 
 
 def display_table(user_id):
@@ -367,7 +387,9 @@ def display_table(user_id):
     # Code for creating a table from official tabulate documentation
     headers = ENTRIES_SHEET.row_values(1)[2:]
     print(tabulate(sorted_by_year, headers, tablefmt='psql'))
-    print("Goal: \n")
+    total_savings = calculate_total_savings(user_id)
+    print(f"Total: {total_savings}\n")
+    # print("Budget: \n")
 
 
 def account_menu(user_id):
@@ -398,7 +420,7 @@ def account_menu(user_id):
     menu_choices = [{'name': add_entry, 'param1': user_id},
                     {'name': remove_entry, 'param1': user_id},
                     {'name': edit_entry, 'param1': user_id},
-                    {'name': calculate_budget, 'param1': user_id},
+                    {'name': edit_budget, 'param1': user_id},
                     {'name': display_help, 'param1': 'account',
                     'param2': user_id}, {'name': logout}]
 
