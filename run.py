@@ -47,6 +47,7 @@ def display_logo():
 
 def confirm_action(action):
     """"""
+    print()
     print(f"Please enter 1 to confirm {action} or 2 to cancel.")
     menu_selection = input("Input 1 or 2:\n")
     print()
@@ -240,7 +241,7 @@ def add_entry(user_id):
             break
     income = get_amount_input(user_id, "Income(£)")
     outgoing = get_amount_input(user_id, "Outgoing(£)")
-    savings = calculate_difference(income, outgoing)
+    savings = round(calculate_difference(income, outgoing), 2)
     entry_num = calc_next_entry_num(user_id)
     try:
         entry_id = int(ENTRIES_SHEET.col_values(1)[-1])+1
@@ -250,7 +251,8 @@ def add_entry(user_id):
     entry_list = [entry_id, user_id, entry_num, month, income, outgoing, savings]
 
     print()
-    print(f"You have entered {entry_list}\n")
+    print("Add below information to the table?")
+    print(entry_list[2:])
     if confirm_action('add entry'):
         ENTRIES_SHEET.append_row(entry_list)
     else:
@@ -309,15 +311,23 @@ def edit_entry(user_id):
     print("EDIT ENTRY:\n")
     print("Input EXIT to return to menu.\n")
 
-    entry_to_edit = get_entry_to_edit(user_id)
+    entry_to_edit = int(get_entry_to_edit(user_id))
+    row_num = get_entry_row(user_id, int(entry_to_edit))
 
     month = get_month_input(user_id, "Month (MMM YYYY)")
     income = get_amount_input(user_id, "Income(£)")
     outgoing = get_amount_input(user_id, "Outgoing(£)")
-    savings = calculate_difference(income, outgoing)
+    savings = round(calculate_difference(income, outgoing), 2)
 
-    row_num = get_entry_row(user_id, int(entry_to_edit))
-    ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [[month, income, outgoing, savings]])
+    previous_data = ENTRIES_SHEET.row_values(row_num)[2:]
+    new_data = [entry_to_edit, month, income, outgoing, savings]
+
+    print()
+    print(f"Replace\n {previous_data}\nwith\n {new_data}?")
+    if confirm_action('edit entry'):
+        ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [new_data[1:]])
+    else:
+        print("Action cancelled. Data not saved")
 
 
 def remove_entry(user_id):
