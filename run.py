@@ -347,8 +347,14 @@ def remove_entry(user_id):
 
     row_num = get_entry_row(user_id, int(entry_to_remove))
     row_data = ENTRIES_SHEET.row_values(row_num)[2:]
-    ENTRIES_SHEET.delete_rows(row_num)
-    print(f"Entry {row_data} removed.\n")
+
+    print()
+    print("Remove below information from the table?")
+    print(row_data)
+    if confirm_action('remove entry'):
+        ENTRIES_SHEET.delete_rows(row_num)
+    else:
+        print("Action cancelled. Data not removed")
 
 
 def calculate_total_savings(user_id):
@@ -526,9 +532,11 @@ def logout():
 
     Outputs: prints a message to the console and calls the main_menu() function
     """
-    clear_terminal()
-    print("Successfully logged out.\n")
-    main_menu()
+    print("Logout?")
+    if confirm_action('logout'):
+        clear_terminal()
+        print("Successfully logged out.\n")
+        main_menu()
 
 
 def validate_username_creation(username):
@@ -623,8 +631,6 @@ def save_account_details(username, password, name):
     
     menu_choices = [{'name': append_user_row, 'param1': user_row},
                     {'name': create_account}]
-
-    # if confirm_action():
 
     if validate_menu_choice(menu_selection, len(menu_choices)):
         action_menu_choice(menu_selection, menu_choices)
