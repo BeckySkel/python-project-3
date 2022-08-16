@@ -443,10 +443,16 @@ def edit_budget(user_id):
     average_income = calculate_average([float(entry[2]) for entry in user_entries])
     spending_budget = round(float(calculate_difference(average_income, budget)), 2)
 
+    print()
     print(f"In order to save {goal_amount} by {goal_date} you'd have to save {budget} per month.")
     print(f"Based on your average income of {average_income},",
-          f"this would mean limiting your spending to around {spending_budget}")
-    save_budget_info(user_id, goal_amount, goal_date)
+          f"this would mean limiting your spending to around {spending_budget}\n")
+
+    print("Save budget information?")
+    if confirm_action('and save'):
+        save_budget_info(user_id, goal_amount, goal_date)
+    else:
+        print("Action cancelled. Budget information not stored.")
 
 
 def display_table(user_id):
