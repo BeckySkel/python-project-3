@@ -39,17 +39,21 @@
 ## Strategy
 
 ### Target Audience
-- Directed at those who wish to save some money or keep track of their monthly spending, this application will most likely attract those who are saving for a specific event/item or for teenagers/young adults who are new to keeping track of their own finances and need some guidance on how to set a budget.
+- Directed at those who wish to save some money or keep track of their monthly spending, this application will most likely attract those who are saving for a specific event/item or for those who are new to keeping track of their own finances, most likely teenagers and young adults, and need some guidance on how to set a budget.
 
 ### User Stories
 
 #### Savers
-*Individuals who are saving for a specific event or pusrchase*
-- As a saver, 
+*Individuals who are saving for a specific event or purchase, an end date and/or set amount is in mind*
+- As a saver, I would like to be able to set a goal to work towards.
+- As a saver, I would like guidance on how to reach my savings goal in the required timeframe.
+- As a saver, I would like feedback on my progress towards my goal so that I may adjust my spending accordingly.
 
 #### Budgeters
-*Individuals who do not necessarily have a specific event ot purchase in mind but would like to set a buget for themselves to follow*
-- As a budgeter, 
+*Individuals who do not necessarily have a specific event ot purchase in mind but would like to set a budget for themselves to follow*
+- As a budgeter, I would like to easily enter my monthly income and spending and calculate the difference.
+- As a budgeter, I would like to be able to view my average income, outgoings and savings.
+- As a budgeter, I would like to view my total savings.
 
 ---
 ## Scope
