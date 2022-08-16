@@ -59,7 +59,7 @@
 ## Scope
 
 ### Research
-- Before any planning, I conducted research into other similar games and took note of the rules and format, as well as which features I thought enhanced the player's experience and would be good to include for my target audiences.
+- Before planning, I considered my target audience and which features would be most beneficial too them. I also considered which features would translate well to a Python-only, command-line application.
 
 ### Future Features
 
@@ -76,18 +76,21 @@
 - 
 
 ### Testing
-- Throughout the project, I conducted constant testing through ise of the terminal in gitpod to help me test each code addition 
-- Please follow [this link](assets/documents/TESTING.md) for full list of tests carried out on this app
+- Throughout the project, I relied on [Gitpod](https://www.gitpod.io/)'s built-in command-line interface to interact with the app and highlight any bugs or exceptions that needed addressing. I also used the built-in Python linter to check for problems whilst building.
+- Please follow [this link](assets/documents/TESTING.md) for full list of final tests carried out on this app.
 
 ---
 ## Structure
 
 ### Flowchart
-- lucidchart
+- [Lucid](https://lucid.app/) was used to create a flowchart to map out the functions and processes of the application.
+![Image of a flow chart showing the flow of the application](/assets/images/flowchart.png)
 
 ### Information architecture
-- BUDGE is a command-line application which relies on Python to interact with a Google Sheets database to calculate and display savings and budget information to the user.
-- 
+- BUDGE is a web application built with Python where users can interact with a database to store monthly saving data and calculate a budget based on their inputs.
+- All actions are completed via interacting with the mock-terminal present in the deployed site (provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)).
+- A "Run Program "button is present so that the user can start/reset the app.
+- All information is stored within a Google Sheets workbook containering 2 worksheets: users & entries.
 
 ---
 ## Skeleton
