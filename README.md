@@ -63,7 +63,7 @@
 
 ### Future Features
 
-#### 
+#### Password Encryption
 - 
 
 #### 
@@ -114,40 +114,47 @@
 ##### Help
 - Provides information about the app to the user.
 - Called from the main menu and account menu, exited with empty input.
-
 ![Screenshot of help display](/assets/images/help-display.png)
 
 ##### Login
-- 
-
+- User inputs their username and password to login and combination validated against database (not encrypted, see [Future Features](https://github.com/BeckySkel/python-project-3/blob/main/README.md#future-features)).
+- Re-called with failed attempts, exited with 'exit' input.
 ![Screenshot of account login](/assets/images/login.png)
 
 ##### Create Account
-- 
-
+- User chooses and inputs a username and password and also inputs their name. Inputs then confirmed before adding to database and logging in.
+- Each input re-called with failed validation, exited with 'exit' input.
 ![Screenshot of account setup](/assets/images/create-account.png)
 
 #### Account
-##### Account Menu
-- 
+##### Entries Display
+- Displays a table of the user's previous entries as well as a few insights into their budgeting (total savings, overall savings goal, monthly savings goal).
+- Called from account menu.
+![Screenshot of entries table](/assets/images/table-display.png)
 
+##### Account Menu
+- Displays a list of follow-up actions (add entry, remove entry, edit entry, edit budget, help, logout), numbered 1 to 6. User input's number ascociated with the desired action. Re-called if input is invalid or if following action is exited.
+- Called after successful login or account creation and loops after each account action.
+- Logout to exit to main menu.
 ![Screenshot of the account menu](/assets/images/account-menu.png)
 
 ##### Add, Remove, Edit Entry
-- 
-
+- User inputs entry number, month, income and/or outgoings as needed. Each input is validated.
+- Inpupts are displayed and requests confirmation from user before actioning.
+- Re-called after failed validation, exited with 'exit' or cancelling at confirmation.
 ![Screenshot of adding an entry](/assets/images/add-entry.png)
 ![Screenshot of removing an entry](/assets/images/remove-entry.png)
 ![Screenshot of editing an entry](/assets/images/edit-entry.png)
 
 ##### Budget Calculator
-- 
-
+- Allows user to input their savings goal and a date to acheive it and provides insights and a budget that the user can save and refer back to. Monthly savings is updated with new entries so that user can adjust their spending accordingly.
+- Inpupts are displayed and requests confirmation from user before saving.
+- Re-called after failed validation, exited with 'exit' or cancelling at confirmation.
 ![Screenshot of the calculation process](/assets/images/budget.png)
 
-##### Logout
-- 
-
+### Logout
+- Allows the user to logout of their account. Clears terminal and returns to main menu.
+- Requests confirmation before logging out. Cancelled and returns to accouont menu if confirmation denied.
 ![Screenshot of logout display](/assets/images/logout.png)
 
 ### Technologies used
