@@ -74,7 +74,7 @@ def currency(amount: str or float) -> float:
     return amount_as_currency
 
 
-def print_colour(text, colour):
+def print_colour(text: str, colour: str):
     """
     Uses termcolor to print coloured text to the terminal
 

@@ -1,3 +1,7 @@
+"""
+Module used to store functions which interact with a Google Sheets database
+"""
+
 from tabulate import tabulate
 from constants import USERS_SHEET, ENTRIES_SHEET, HEADERS, MONTHS
 import utils

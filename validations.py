@@ -1,18 +1,23 @@
+"""
+Module for storing functions used to validate input data
+"""
+
 from constants import MONTHS
 import utils
 import google_sheets
 
 
-def validate_month_format(month_input):
+def validate_month_format(month_input: str) -> bool:
     """
     Checks the format and spelling of the user's 'month' input against a list
     of all 12 months when adding/editing an entry to ensure consistency and
-    correctness.
+    correctness. Also checks if year is integer in YYYY format.
 
-    Parameters: month_input: users's month input from add_entry or edit_entry
-    functions
+    Parameters:
+        month_input: str, users's month input from add_entry, edit_entry
+        or edit_budget functions
 
-    ROutputs: (boolean) returns True if input correctly formatted and present
+    Outputs: bool, returns True if input correctly formatted and present
     in month list, False if not
     """
     try:
@@ -21,7 +26,7 @@ def validate_month_format(month_input):
         int(year)
         if len(year) != 4:
             raise ValueError()
-    except (ValueError):
+    except ValueError:
         utils.print_colour("Month must be in format MMM YYYY, e.g. Jan 2022\n"
                            "Please try again.\n", 'red')
         return False
@@ -29,8 +34,17 @@ def validate_month_format(month_input):
     return True
 
 
-def is_month_duplicate(month_input, user_id):
-    """"""
+def is_month_duplicate(month_input: str, user_id: int) -> bool:
+    """
+    Checks if entered month already exists in table
+
+    Parameters:
+        month_input: str, users's month input from add_entry function
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+
+    Outputs: bool, return True if month present or False if not
+    """
     month_entries = [entry[1] for entry in
                      google_sheets.get_user_entries(user_id)]
     try:
@@ -42,16 +56,17 @@ def is_month_duplicate(month_input, user_id):
         return False
 
 
-def validate_amount(amount):
+def validate_amount(amount: str) -> bool:
     """
     Checks that the amount entered can be converted to a float and is therefore
-    a valid income/outgoing entry
+    a valid currency entry
 
-    Parameters: amount: users's income or outgoing input from add_entry or
-    edit_entry functions
+    Parameters:
+        amount: str, users's income or outgoing input from add_entry,
+        edit_entry or edit_budget functions
 
-    Outputs:(boolean) returns True if input can be converted to a float value,
-    False if not
+    Outputs: bool, returns True if input can be converted to a float value,
+    False if not or if below 0
     """
     try:
         if float(amount) < 0:
@@ -64,8 +79,16 @@ def validate_amount(amount):
     return True
 
 
-def validate_entry_number(entry_num, user_entries):
+def validate_entry_number(entry_num: str, user_entries: list) -> bool:
     """
+    Validates that the number input is an integer and is present in the
+    user's entry numbers
+
+    Parameters:
+        entry_num: str, entry that the user wishes to edit or remove
+        user_entries: list, list of user's entry numbers
+
+    Outputs: bool, returns True if valid or False if not
     """
     try:
         int(entry_num)
@@ -76,21 +99,22 @@ def validate_entry_number(entry_num, user_entries):
             utils.print_colour("Entry does not exist."
                                "Please input one of the following:", 'red')
             print(entry_nums)
-            return False
+            raise ValueError()
     except ValueError:
         return False
 
     return True
 
 
-def validate_username_creation(username):
+def validate_username_creation(username: str) -> bool:
     """
-    Prompts the user to choose a username. Validates by checking length
-    and whether username already in use. Loops if invalid
+    Validates username input by checking length and whether
+    username already in use.
 
-    Parameters: none
+    Parameters:
+        username: str, The user's chosen username
 
-    Outputs: returns username when passes validation
+    Outputs: bool, returns True if valid, False if not
     """
     usernames = google_sheets.get_usernames()
 
@@ -110,14 +134,15 @@ def validate_username_creation(username):
     return True
 
 
-def validate_password_creation(password):
+def validate_password_creation(password: str) -> bool:
     """
-    Prompts the user to choose a password. Checks if it meets all
-    validation criteria and loops if it doesn't
+    Validates user's chosen password. Checks if it meets criteria for length
+    and minimums of each character-type (upper, lower and numbers)
 
-    Parameters: none
+    Parameters:
+        password: str, The user's chosen username
 
-    Outputs: returns password when passes validation
+    Outputs: bool, returns True if valid, False if not
     """
     pass_length = len(password)
     length_valid = True if pass_length >= 5 and pass_length <= 15 else False
@@ -143,14 +168,16 @@ def validate_password_creation(password):
         return False
 
 
-def validate_login_details(login_attempt):
+def validate_login_details(login_attempt: dict) -> bool:
     """
     Validates the user's login request
 
-    Parameters: login_attempt: a dictionary of the user's input username and
-    password
+    Parameters:
+        login_attempt: a dictionary with the username as the key and
+        password as the value
 
-    Outputs: runs account menu if login valid, returns to login if invalid
+    Outputs: bool, returns True if username and password combination
+    present in database
     """
     usernames = google_sheets.get_usernames()
     passwords = google_sheets.get_passwords()
@@ -171,14 +198,16 @@ def validate_login_details(login_attempt):
         return False
 
 
-def validate_menu_choice(response, limit):
+def validate_menu_choice(response: str, limit: int) -> bool:
     """
-    Validates menu selection and raises error if invalid response entered
+    checks menu selection is integer and present in menu limit,
+    raises error if selection is outside the limit.
 
-    Parameters: response: user's input response to menu selection,
-    limit: limit of options in menu
+    Parameters:
+        response: str, user's input response to menu selection
+        limit: int, number of options in menu
 
-    Outputs: (boolena) returns True if input is within limit and an integer,
+    Outputs: bool, returns True if input is within limit and an integer,
     returns False if not.
     """
     try:
@@ -193,8 +222,16 @@ def validate_menu_choice(response, limit):
         return False
 
 
-def confirm_action(action):
-    """"""
+def confirm_action(action: str) -> bool:
+    """
+    Requests confirmation from user that they wish to continue with action
+
+    Parameters:
+        action: str, included in confirmation message desiplayed to user
+
+    Outputs: bool, returns True if action confirmed, False if cancelled.
+    Function repeats if invalid input.
+    """
     print()
     print(f"Please enter 1 to confirm {action} or 2 to cancel.")
     menu_selection = input("Input 1 or 2:\n")
