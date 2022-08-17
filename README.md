@@ -81,8 +81,7 @@
 ## Structure
 
 ### Flowchart
-- [Lucid](https://lucid.app/) was used to create a flowchart to map out the functions and processes of the application.
-![Image of a flow chart showing the flow of the application](/assets/images/flowchart.png)
+- [Lucid](https://lucid.app/) was used to create a flowchart to map out the functions and processes of the application. Follow [this link](/assets/documents/flowchart.pdf) to view
 
 ### Information architecture
 - BUDGE is a web application built with Python where users can interact with a database to store monthly saving data and calculate a budget based on their inputs.

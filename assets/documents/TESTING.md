@@ -47,21 +47,37 @@
     - PASSWORD1 (doesn't contain lowercase)
     - Password (doesn't contain number)
 - Account Menu inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
-- Help inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
-- Add Entry inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
-- Remove Entry inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
-- Edit Entry inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
-- Edit Budget inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
+    - 0
+    - 7
+    - cat
+    - (empty)
+- Month Entry inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
+    - 0
+    - 2022
+    - jan
+    - jan2022
+    - jan 22
+    - (empty)
+- Amount Entry inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
+    - -300
+    - cat
+    - (empty)
+- Entry Number inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
+    - 0
+    - 25
+    - cat
+    - (empty)
 - Logout inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
+    - 0
+    - 3
+    - cat
+    - (empty)
 - Confirm Action inputs tested with the following **incorrect** inputs on *17/8/22* and found to be working as intended:
-    - 
+    - 0
+    - 3
+    - cat
+    - (empty)
+
 
 ---
 ## Different browsers
@@ -74,8 +90,9 @@
 ---
 ## Bugs
 ### Resolved Bugs
-- Logo printing twice?
-- coloured text shows darker in CI terminal (made bold)
+- Initially when taking a username input, the first input was taking dispite failing validation. This was corrected by moving the input request to a seperate function.
+- It was originally very difficult to find out which row number to use for removing entries but after a lot of trial and error, I realised it as the index + 2 due to only taking the entries and not the headings. 
+- coloured text shows too dark in CI terminal, made bold coloured text bold to combat this and improve readability
 
 ### Unresolved Bugs
 - To my knowledge, there are no unresolved bugs.

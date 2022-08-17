@@ -301,9 +301,3 @@ def calc_months_difference(user_id, goal_date):
     years_difference = goal_year - latest_year
 
     return (years_difference*12) + months_difference
-
-
-# row_num = get_user_row(4)
-# print(row_num)
-# user_row = USERS_SHEET.row_values(row_num)
-# print(user_row)
