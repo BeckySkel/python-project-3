@@ -15,7 +15,7 @@ def get_user_entries(user_id: int) -> list:
         user_id: int, the unique identifier of the user's account,
         used to access and display the data of the user who is currently
         logged in
-    
+
     Outputs: list, returns a list of lists of the user's entries
     """
     all_entries = ENTRIES_SHEET.get_all_values()
@@ -35,7 +35,7 @@ def get_user_entries(user_id: int) -> list:
 def entries_by_date(user_id: int) -> list:
     """
     Accesses and sorts all the user's entries by month, then year
-    
+
     Parameters:
         user_id: int, the unique identifier of the user's account,
         used to access and display the data of the user who is currently
@@ -123,7 +123,7 @@ def save_budget_info(user_id: int, goal_amount: float, goal_date: str):
         logged in
         goal_amount: float, amount inputted by the user
         goal_date: str, month inoutted by the user
-    
+
     Outputs: Updates user savings info in database
     """
     row_num = get_user_row(user_id)

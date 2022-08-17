@@ -8,8 +8,17 @@ from constants import ENTRIES_SHEET, USERS_SHEET
 import google_sheets
 
 
-def get_month_input(user_id, input_request):
-    """"""
+def get_month_input(user_id: int, input_request: str) -> str:
+    """
+    Prompts the user to input a month and runs through validation
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+        input_request: str, request to display in input
+
+    Outputs: str, returns the validated month input as a string
+    """
     while True:
         month = input(f"{input_request}:\n").lower().capitalize()
         if utils.check_exit(month):
@@ -22,8 +31,18 @@ def get_month_input(user_id, input_request):
             return month
 
 
-def get_amount_input(user_id, input_request):
-    """"""
+def get_amount_input(user_id: int, input_request: str) -> float:
+    """
+    Prompts the user to input an amount and runs through validation
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+        input_request: str, request to display in input
+
+    Outputs: float, returns the validated amount input in correct currency
+    format
+    """
     while True:
         amount = input(f"{input_request}:\n")
         if utils.check_exit(amount):
@@ -34,8 +53,15 @@ def get_amount_input(user_id, input_request):
     return utils.currency(amount)
 
 
-def calc_next_entry_num(user_id):
+def calc_next_entry_num(user_id: int) -> int:
     """
+    Calculates the next entry number for the user's input
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+
+    Outputs: int, entry number for user's next entry input
     """
     user_entries = google_sheets.get_user_entries(user_id)
     user_entries_nums = [int(entry[0]) for entry in user_entries]
@@ -49,8 +75,16 @@ def calc_next_entry_num(user_id):
     return entry_num
 
 
-def get_entry_to_edit(user_id):
-    """"""
+def get_entry_to_edit(user_id: int) -> int:
+    """
+    Prompts the user to input an entry to edit and runs through validation
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+
+    Outputs: int, returns the validated entry number
+    """
     user_entries = google_sheets.get_user_entries(user_id)
 
     while True:
@@ -63,12 +97,13 @@ def get_entry_to_edit(user_id):
     return entry_to_edit
 
 
-def add_entry(user_id):
+def add_entry(user_id: int):
     """
-    Allows user to add a new entry for their monthly spending data
+    Allows user to add a new entry to their monthly spending data
 
-    Parameters: user_id: the unique identifier of the user's account,
-    used to manipulate the data of the user who is currently logged in
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
 
     Outputs: appends user's entered spending data to the database after
     running validation checks
@@ -98,8 +133,16 @@ def add_entry(user_id):
         print("Action cancelled. Data not saved")
 
 
-def edit_entry(user_id):
+def edit_entry(user_id: int):
     """
+    Allows user to edit an entry from their monthly spending data
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+
+    Outputs: updates entered spending data to the correct entry in the
+    database after running validation checks
     """
     utils.print_colour("EDIT ENTRY:\n", 'cyan')
     utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
@@ -126,12 +169,13 @@ def edit_entry(user_id):
         print("Action cancelled. Data not saved")
 
 
-def remove_entry(user_id):
+def remove_entry(user_id: int):
     """
     Allows user to remove an entry from their monthly spending data
 
-    Parameters: user_id: the unique identifier of the user's account,
-    used to manipulate the data of the user who is currently logged in
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
 
     Outputs: deletes row from entry data based on the user's unique ID
     and their inputted entry ID
@@ -153,8 +197,16 @@ def remove_entry(user_id):
         print("Action cancelled. Data not removed")
 
 
-def edit_budget(user_id):
-    """"""
+def edit_budget(user_id: int):
+    """
+    Allows user to input their savings goal and edit their budget
+
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to manipulate the data of the user who is currently logged in
+
+    Outputs: updates entered savings goal info to the correct user
+    """
     utils.print_colour("EDIT BUDGET:\n", 'cyan')
     utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
@@ -198,13 +250,14 @@ def edit_budget(user_id):
         print("Action cancelled. Budget information not stored.")
 
 
-def account_menu(user_id):
+def account_menu(user_id: int):
     """
     Displays the account menu with options for the user to add a new entry,
     remove a previous entry, edit their goals, view app information or logout
 
-    Parameters: user_id: the unique identifier of the user's account,
-    used to access the data of the user who is currently logged in
+    Parameters:
+        user_id: int, the unique identifier of the user's account,
+        used to access the data of the user who is currently logged in
 
     Outputs: calls action_menu_choice function to select the next function to
     run based on user's input. Provides funtcion name and parameters via a
@@ -255,13 +308,15 @@ def logout():
         main_menu()
 
 
-def save_account_details(username, password, name):
+def save_account_details(username: str, password: str, name: str):
     """
     Checks user is happy to submit and save their account details and continue
     with creation
 
-    Parameters: username: the user's chosen username, password: the user's
-    chosen password, name: the user's name
+    Parameters:
+        username: str, the user's chosen username
+        password: str, the user's chosen password
+        name: str, the user's name
 
     Outputs: calls action_menu_choice function to select the next function to
     run based on user's input. Provides function name and parameters via a
@@ -347,9 +402,10 @@ def display_help(menu, user_id):
     Called from either the main menu or account menu,
     displays information about the program and how to use it
 
-    Parameters: menu: string with name of menu called from/to return to
-    user_id: the unique identifier of the user's account,
-    used to access the data of the user who is currently logged in
+    Parameters:
+        menu: str, name of menu called from/to return to
+        user_id: int, the unique identifier of the user's account,
+        used to access the data of the user who is currently logged in
 
     Outputs: calls back to either main or account menu based on first parameter
     """
@@ -401,13 +457,14 @@ def login():
         main_menu()
 
 
-def action_menu_choice(response, functions):
+def action_menu_choice(response: int, functions: list):
     """
     Calls the correct function based on user's input
 
-    Parameters: repsonse: user's input response to menu selection,
-    functions: list of dictionaries with function names and parameters
-    to be unpacked
+    Parameters:
+        repsonse: user's input response to menu selection,
+        functions: list of dictionaries with function names and parameters
+        to be unpacked
 
     Outputs: calls correct function based on user's input
     """
