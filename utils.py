@@ -14,7 +14,7 @@ def display_logo():
     print_colour("""
  ______  _     _ _____    ______ _______
 (____  \| |   | (____ \  / _____|_______)
- ____)  ) |   | |_   \ \| /  ___ _____ 
+ ____)  ) |   | |_   \ \| /  ___ _____
 |  __  (| |   | | |   | | | (___)  ___)
 | |__)  ) |___| | |__/ /| \____/| |_____
 |______/ \______|_____/  \_____/|_______)
@@ -84,4 +84,4 @@ def print_colour(text: str, colour: str):
 
     Outputs: prints text to terminal in desired colour
     """
-    print(colored(text, colour))
+    print(colored(text, colour, attrs=['bold']))

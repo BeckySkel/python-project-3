@@ -24,6 +24,7 @@
 - [Structure](https://github.com/BeckySkel/python-project-3/blob/main/README.md#structure)
     - [Flowchart](https://github.com/BeckySkel/python-project-3/blob/main/README.md#flowchart)
     - [Information Architecture](https://github.com/BeckySkel/python-project-3/blob/main/README.md#information-architecture)
+    - [Data model](https://github.com/BeckySkel/python-project-3/blob/main/README.md#data-model)
 - [Skeleton](https://github.com/BeckySkel/python-project-3/blob/main/README.md#skeleton)
     - [Current Features](https://github.com/BeckySkel/python-project-3/blob/main/README.md#current-features)
     - [Technologies Used](https://github.com/BeckySkel/python-project-3/blob/main/README.md#technologies-used)
@@ -64,16 +65,13 @@
 ### Future Features
 
 #### Password encryption
-- 
+- Typically, passwords would be encrypted whilst being processed. But due to the learning curve and time constraints, it was not something I could include at this stage but would hope to implement in the future. No sensitive personal information is stored for the site due to this.
 
-#### 
-- 
+#### Extend budgeting options
+- I'd like to introduce more ways that the user could interact with their budget and provide further resources for planning their monthly spending. Introducing a feature where the user could categorise their income or expenses would provide further insight on where they could cut down.
 
-#### 
-- 
-
-#### 
-- 
+#### Graphs
+- Introducing graphs plotted with each monthly entry would be a great way for the user to visualise their spending habits and spot any trends.
 
 ### Testing
 - Throughout the project, I relied on [Gitpod](https://www.gitpod.io/)'s built-in command-line interface to interact with the app and highlight any bugs or exceptions that needed addressing. I also used the built-in Python linter to check for problems whilst building.
@@ -88,9 +86,16 @@
 
 ### Information architecture
 - BUDGE is a web application built with Python where users can interact with a database to store monthly saving data and calculate a budget based on their inputs.
-- All actions are completed via interacting with the mock-terminal present in the deployed site (provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)).
+- The user interacts with the mock-terminal present in the deployed site (provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)) to call actions and manipulate data.
 - A "Run Program "button is present so that the user can start/reset the app.
-- All information is stored within a Google Sheets workbook containing 2 worksheets: users & entries.
+- All data is stored within a Google Sheets workbook containing 2 worksheets: users & entries.
+
+### Data model
+- The app is linked to a Google Sheets database and uses a variety of functions to interact with and manipulate the data.
+- The database is split into 2 worksheets: users & entries.
+- In the 'users' worksheet exists a table with each user's user id (their unique identifier, used to acceess the correct data), their name, username, password (both used to provide a level of security before accessing the data), their chosen goal month and goal amount for their savings budget (both used to calculate how much they should be saving each month in order to reach their goals).
+- The 'entries' sheet holds a table with the entry id (unique identifier of the entry, used by the app to locate the correct entry when editing), the user's id (their unique identifier), the entry number (used by the user to interact with the entry), the month, incoming and outgoing data (all used to store and display the user's saving data) and the net savings calculated from the incoming and outgoing amounts.
+- The majority of the functions use the user_id to locate the correct user's data to be manipulated but some also use indexing.
 
 ---
 ## Skeleton
@@ -101,7 +106,7 @@
 ![Screenshot of the start-up screen, including the logo, welcome message and main menu](/assets/images/welcome.png)
 ##### Logo
 - The logo is large and bold. Printed in capitals to improve readability.
-- Created with [](https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
+- Created with [https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20]()
 - The logo is displayed upon initial launch and whenever the terminal is cleared (after login and logout). 
 ##### Welcome message
 - Reads "Welcome to Budge: The budget and savings tracker!"
@@ -119,7 +124,8 @@
 ##### Login
 - User inputs their username and password to login and combination validated against database (not encrypted, see [Future Features](https://github.com/BeckySkel/python-project-3/blob/main/README.md#future-features)).
 - Re-called with failed attempts, exited with 'exit' input.
-![Screenshot of account login](/assets/images/login.png)
+
+    ![Screenshot of account login](/assets/images/login.png)
 
 ##### Create account
 - User chooses and inputs a username and password and also inputs their name. Inputs then confirmed before adding to database and logging in.
@@ -136,7 +142,8 @@
 - Displays a list of follow-up actions (add entry, remove entry, edit entry, edit budget, help, logout), numbered 1 to 6. User input's number ascociated with the desired action. Re-called if input is invalid or if following action is exited.
 - Called after successful login or account creation and loops after each account action.
 - Logout to exit to main menu.
-![Screenshot of the account menu](/assets/images/account-menu.png)
+
+    ![Screenshot of the account menu](/assets/images/account-menu.png)
 
 ##### Add, remove, edit entry
 - User inputs entry number, month, income and/or outgoings as needed. Each input is validated.
@@ -150,9 +157,9 @@
 - Allows user to input their savings goal and a date to acheive it and provides insights and a budget that the user can save and refer back to. Monthly savings is updated with new entries so that user can adjust their spending accordingly.
 - Inpupts are displayed and requests confirmation from user before saving.
 - Re-called after failed validation, exited with 'exit' or cancelling at confirmation.
-![Screenshot of the calculation process](/assets/images/budget.png)
+![Screenshot of the calculation process](/assets/images/edit-budget.png)
 
-### Logout
+#### Logout
 - Allows the user to logout of their account. Clears terminal and returns to main menu.
 - Requests confirmation before logging out. Cancelled and returns to accouont menu if confirmation denied.
 ![Screenshot of logout display](/assets/images/logout.png)
@@ -165,6 +172,16 @@
 - [Git](https://en.wikipedia.org/wiki/Git) for version control
 - [JavaScript](https://en.wikipedia.org/wiki/JavaScript)(Provided by Code Institute Template)
 - [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
+
+#### Imported modules
+- [os](https://docs.python.org/3/library/os.html) to clear terminal
+- [gspread](https://docs.gspread.org/en/latest/) to interact with Google Sheets
+- [termcolor](https://pypi.org/project/termcolor/)
+- [tabulate](https://pypi.org/project/tabulate/)
+
+#### APIs
+- [Google Drive API](https://developers.google.com/drive/api) to interact with Google files
+- [Google Sheets API](https://developers.google.com/sheets/api) to interact with Google Sheets
 
 #### Other resources
 - [Gitpod](https://www.gitpod.io/) to alter and manage website files
@@ -182,15 +199,16 @@
 
 #### Colour scheme
 - Text colours from [termcolor](https://pypi.org/project/termcolor/)
-- Red was used for negative feedback (e.g. invalid input), green for positive feedback (e.g. input valid), yellow for alerts, magenta for menus and cyan for headings.
+- Red was used for negative feedback (e.g. invalid input), green for positive feedback (e.g. input valid), yellow for alerts, magenta for menus and input info and cyan for headings.
 - The consistent use of colours helps the user to determine the nature of the message before reading.
+- Printed in bold to to improve readability.
 
 #### Imagery
 - There are no images used in this site.
 
 #### Typography
 - Standard font was provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)).
-- Logo created at [](https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20).
+- Logo created at [https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20]().
 
 #### Icons
 - There are no icons used in this site.
@@ -215,13 +233,13 @@
 ## Credits
 
 ### Content
-- Code to remove duplicates from date entries by [](https://www.w3schools.com/python/python_howto_remove_duplicates.asp)
-- Splitting and joining string to remove extra whitespace in user response inspired by [](https://www.geeksforgeeks.org/python-program-split-join-string/#:~:text=the%20split()%20method%20in,joined%20by%20the%20str%20separator.)
+- Code to remove duplicates from date entries by [https://www.w3schools.com/python/python_howto_remove_duplicates.asp]()
+- Splitting and joining string to remove extra whitespace in user response inspired by [https://www.geeksforgeeks.org/python-program-split-join-string/#:~:text=the%20split()%20method%20in,joined%20by%20the%20str%20separator.]()
 - Code for creating a table from official [tabulate](https://pypi.org/project/tabulate/) documentation
-- Code to clear terminal from [](https://stackoverflow.com/questions/2084508/clear-terminal-in-python)
+- Code to clear terminal from [https://stackoverflow.com/questions/2084508/clear-terminal-in-python]()
 
 ### Media
-- Logo created with [](https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
+- Logo created with [https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20]()
 - Mock terminal provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)).
 - Text colours from [termcolor](https://pypi.org/project/termcolor/)
 
