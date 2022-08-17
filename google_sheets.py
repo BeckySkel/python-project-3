@@ -158,7 +158,6 @@ def calculate_budget(user_id, goal_amount, goal_date):
     savings_difference = float(goal_amount) - all_savings
     total_months_difference = calc_months_difference(user_id, goal_date)
 
-    # return round(savings_difference/total_months_difference, 2)
     return utils.currency(savings_difference/total_months_difference)
 
 

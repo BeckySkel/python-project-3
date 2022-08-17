@@ -1,10 +1,15 @@
 import os
+from termcolor import colored
+
+
+# text = colored('Hello, World!', 'red', attrs=['reverse', 'blink'])
+# print(text)
 
 
 def display_logo():
     """"""
     # Logo created at https://patorjk.com/software/taag/
-    print("""
+    print_colour("""
  ______  _     _ _____    ______ _______
 (____  \| |   | (____ \  / _____|_______)
  ____)  ) |   | |_   \ \| /  ___ _____ 
@@ -12,7 +17,7 @@ def display_logo():
 | |__)  ) |___| | |__/ /| \____/| |_____
 |______/ \______|_____/  \_____/|_______)
 
-""")
+""", 'green')
 
 
 # def confirm_action(action):
@@ -36,7 +41,7 @@ def check_exit(input_value):
     Ouputs: (boolean) returns True if 'exit' was entered, returns False if not
     """
     if input_value.upper() == 'EXIT':
-        print("Exiting function and returning to menu.\n")
+        print_colour("Exiting function and returning to menu.\n", 'yellow')
         return True
 
     return False
@@ -60,3 +65,8 @@ def currency(amount):
     """"""
     amount_as_currency = round(float(amount), 2)
     return amount_as_currency
+
+
+def print_colour(text, colour):
+    """"""
+    print(colored(text, colour))

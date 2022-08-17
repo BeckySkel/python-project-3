@@ -23,8 +23,8 @@ def validate_month_format(month_input):
         if len(year) != 4:
             raise ValueError()
     except (ValueError, IndexError):
-        print("Month must be in format MMM YYYY", "e.g. Jan 2021, Nov 1998",
-              "Please try again.\n")
+        utils.print_colour("Month must be in format MMM YYYY, e.g. Jan 2022\n"
+                           "Please try again.\n", 'red')
         return False
 
     return True
@@ -36,7 +36,8 @@ def is_month_duplicate(month_input, user_id):
                      google_sheets.get_user_entries(user_id)]
     try:
         month_entries.index(month_input)
-        print(f"Entry already exists for {month_input}, please try again.\n")
+        utils.print_colour(f"Entry already exists for {month_input}.\n"
+                           "Please try again.\n", 'red')
         return True
     except ValueError:
         return False
@@ -57,8 +58,8 @@ def validate_amount(amount):
         if float(amount) < 0:
             raise ValueError
     except ValueError:
-        print("Must be a positive number (rounded to 2 decimal places).\n"
-              f"You entered {amount}. Please try again\n")
+        utils.print_colour("Must be a positive number.\n"
+                           f"You entered {amount}. Please try again\n", 'red')
         return False
 
     return True
@@ -73,8 +74,9 @@ def validate_entry_number(entry_num, user_entries):
         for entry in user_entries:
             entry_nums.append(int(entry[0]))
         if int(entry_num) not in entry_nums:
-            print("Entry does not exist."
-                  f"Please input one of the following: {entry_nums}")
+            utils.print_colour("Entry does not exist."
+                               "Please input one of the following:", 'red')
+            print(entry_nums)
             return False
     except ValueError:
         return False
@@ -91,19 +93,19 @@ def validate_username_creation(username):
 
     Outputs: returns username when passes validation
     """
-    # usernames = USERS_SHEET.col_values(3)[1:]
     usernames = google_sheets.get_usernames()
 
     username_length = len(username)
     if username_length < 5:
-        print("Username too short, please try again\n")
+        utils.print_colour("Username too short, please try again\n", 'red')
         return False
     elif username_length > 15:
-        print("Username too long, please try again\n")
+        utils.print_colour("Username too long, please try again\n", 'red')
         return False
     else:
         if username in usernames:
-            print("That username is unavailable, please try again\n")
+            utils.print_colour("Username unavailable, please try again\n",
+                               'red')
             return False
 
     return True
@@ -135,10 +137,10 @@ def validate_password_creation(password):
                 lowercase_count += 1
 
     if length_valid and uppercase_count and lowercase_count and number_count:
-        print("Password valid!\n")
+        utils.print_colour("Password valid!\n", 'green')
         return True
     else:
-        print("Password invalid. Please try again\n")
+        utils.print_colour("Password invalid. Please try again\n", 'red')
         return False
 
 
@@ -163,11 +165,10 @@ def validate_login_details(login_attempt):
         login_list.index(login_attempt)
         utils.clear_terminal()
         print("Welcome back!\n")
-        # run.account_menu(user_id)
         return True
     except ValueError:
-        print("Username or password incorrect. Please try again\n")
-        # run.login()
+        utils.print_colour("Username/password incorrect. Please try again\n",
+                           'red')
         return False
 
 
@@ -187,9 +188,9 @@ def validate_menu_choice(response, limit):
             raise ValueError()
         return True
     except ValueError:
-        print("Invalid selection:",
-              f"Please choose a number between 1 and {limit}.",
-              f"You entered: {response}\n")
+        utils.print_colour("Invalid selection:\n"
+                           f"Please choose a number between 1 and {limit}.\n"
+                           f"You entered: {response}\n", 'red')
         return False
 
 

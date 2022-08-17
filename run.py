@@ -73,8 +73,8 @@ def add_entry(user_id):
     Outputs: appends user's entered spending data to the database after
     running validation checks
     """
-    print("ADD NEW ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("ADD NEW ENTRY:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     while True:
         month = get_month_input(user_id, "Month (MMM YYYY)")
@@ -90,7 +90,7 @@ def add_entry(user_id):
                   outgoing, savings]
 
     print()
-    print("Add below information to the table?")
+    utils.print_colour("Add below information to the table?", 'yellow')
     print(entry_list[2:])
     if validations.confirm_action('add entry'):
         google_sheets.append_row(entry_list, 'entries')
@@ -101,8 +101,8 @@ def add_entry(user_id):
 def edit_entry(user_id):
     """
     """
-    print("EDIT ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("EDIT ENTRY:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     entry_to_edit = int(get_entry_to_edit(user_id))
     row_num = google_sheets.get_entry_row(user_id, int(entry_to_edit))
@@ -116,7 +116,10 @@ def edit_entry(user_id):
     new_data = [entry_to_edit, month, income, outgoing, savings]
 
     print()
-    print(f"Replace\n {previous_data}\nwith\n {new_data}?")
+    utils.print_colour("Replace", 'yellow')
+    print(previous_data)
+    utils.print_colour("with", 'yellow')
+    print(f"{new_data}?")
     if validations.confirm_action('edit entry'):
         ENTRIES_SHEET.update(f'D{row_num}:G{row_num}', [new_data[1:]])
     else:
@@ -133,8 +136,8 @@ def remove_entry(user_id):
     Outputs: deletes row from entry data based on the user's unique ID
     and their inputted entry ID
     """
-    print("REMOVE ENTRY:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("REMOVE ENTRY:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     entry_to_remove = get_entry_to_edit(user_id)
 
@@ -142,7 +145,7 @@ def remove_entry(user_id):
     row_data = ENTRIES_SHEET.row_values(row_num)[2:]
 
     print()
-    print("Remove below information from the table?")
+    utils.print_colour("Remove below information from the table?", 'yellow')
     print(row_data)
     if validations.confirm_action('remove entry'):
         ENTRIES_SHEET.delete_rows(row_num)
@@ -152,16 +155,16 @@ def remove_entry(user_id):
 
 def edit_budget(user_id):
     """"""
-    print("EDIT BUDGET:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("EDIT BUDGET:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     while True:
         goal_amount = get_amount_input(user_id, "Savings Goal(£)")
         if goal_amount > google_sheets.calculate_total_savings(user_id):
             break
         else:
-            print("Savings goal must be higher than current total savings.\n"
-                  "Please try again")
+            utils.print_colour("Must be more than current total savings.\n"
+                               "Please try again", 'red')
 
     try:
         while True:
@@ -188,7 +191,7 @@ def edit_budget(user_id):
     print(f"Based on your average income of {average_income},\n"
           f"this means limiting your spending to around {spending_budget}\n")
 
-    print("Save budget information?")
+    utils.print_colour("Save budget information?", 'yellow')
     if validations.confirm_action('and save'):
         google_sheets.save_budget_info(user_id, goal_amount, goal_date)
     else:
@@ -207,16 +210,16 @@ def account_menu(user_id):
     run based on user's input. Provides funtcion name and parameters via a
     list of dictionaries named menu_choices. Loops until user logs out
     """
-    print("ACCOUNT:\n")
+    utils.print_colour("ACCOUNT:\n", 'cyan')
     google_sheets.display_table(user_id)
-    print("""Please select an option from the below menu
+    utils.print_colour("""Please select an option from the below menu
     1- Add new entry
     2- Remove entry
     3- Edit entry
     4- Edit budget
     5- Help
     6- Logout
-        """)
+        """, 'magenta')
     menu_selection = input("Input 1, 2, 3, 4, 5 or 6:\n")
     print()
 
@@ -245,10 +248,10 @@ def logout():
 
     Outputs: prints a message to the console and calls the main_menu() function
     """
-    print("Logout?")
+    utils.print_colour("Logout?", 'yellow')
     if validations.confirm_action('logout'):
         utils.clear_terminal()
-        print("Successfully logged out.\n")
+        utils.print_colour("Successfully logged out.\n", 'yellow')
         main_menu()
 
 
@@ -264,12 +267,11 @@ def save_account_details(username, password, name):
     run based on user's input. Provides function name and parameters via a
     list of dictionaries named menu_choices. Loops if invalid input
     """
-    # user_id = int(USERS_SHEET.col_values(1)[-1])+1
     user_id = google_sheets.next_user_id()
     user_row = [user_id, name, username, password]
 
-    print("Please enter 1 to save details and setup account\n"
-          "or 2 to reset details and start again:\n")
+    utils.print_colour("Please enter 1 to save details and setup account\n"
+                       "or 2 to reset details and start again:\n", 'magenta')
     menu_selection = input("Input 1 or 2:\n")
     print()
 
@@ -297,8 +299,8 @@ def create_account():
     Outputs: calls save_account_details() function with validated username,
     validated password and name parameters
     """
-    print("ACCOUNT SETUP:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("ACCOUNT SETUP:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     while True:
         print("""Username must meet the following criteria:
@@ -310,14 +312,14 @@ def create_account():
             main_menu()
         elif validations.validate_username_creation(username):
             break
-    print(f"Username {username} is available!\n")
+    utils.print_colour(f"Username {username} is available!\n", 'green')
 
     while True:
-        print("""Password must meet the following criteria:
+        utils.print_colour("""Password must meet the following criteria:
     - 5 to 15 characters long
     - at least 1 uppercase and 1 lowercase letter
     - at least 1 number
-    """)
+    """, 'magenta')
         password = input("Password:\n")
         if utils.check_exit(password):
             main_menu()
@@ -351,7 +353,7 @@ def display_help(menu, user_id):
 
     Outputs: calls back to either main or account menu based on first parameter
     """
-    print("""
+    utils.print_colour("""
     BUDGE is a handy tool where you can keep track of your monthly spending
     and saving. Whether you're saving for a house or a holiday, BUDGE provides
     a friendly push in the right direction by analysing your spending data
@@ -361,7 +363,7 @@ def display_help(menu, user_id):
     will calculate your savings. After you've entered a few months data,
     why not set a saving goal and see how much you'll need to save each month
     in order to reach it?
-    """)
+    """, 'green')
     input("Press enter to return\n")
     if menu == 'main':
         main_menu()
@@ -379,8 +381,8 @@ def login():
     Outputs: calls validate_login_details() function with a dictionary of
     the user's input username and password
     """
-    print("ACCOUNT LOGIN:\n")
-    print("Input EXIT to return to menu.\n")
+    utils.print_colour("ACCOUNT LOGIN:\n", 'cyan')
+    utils.print_colour("Input EXIT to return to menu.\n", 'magenta')
 
     username = input("Username:\n")
     if utils.check_exit(username):
@@ -430,13 +432,13 @@ def main_menu():
     run based on user's input. Provides function name and parameters via a
     list of dictionaries named menu_choices. Loops if invalid input
     """
-    print("MAIN MENU:\n")
-    print(
+    utils.print_colour("MAIN MENU:\n", 'cyan')
+    utils.print_colour(
         """Please select an option from the below menu
     1- Login
     2- Create Account
     3- Help
-        """)
+        """, 'magenta')
     menu_selection = input("Input 1, 2 or 3:\n")
     print()
 
@@ -451,5 +453,6 @@ def main_menu():
 
 # Greet user and open the main menu
 utils.display_logo()
-print("Welcome to Budge: The budget and savings tracker!\n")
+utils.print_colour('Welcome to Budge: The budget and savings tracker!\n',
+                   'blue')
 main_menu()
