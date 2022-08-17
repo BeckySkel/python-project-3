@@ -147,8 +147,12 @@ def display_table(user_id: int):
     total_savings = calculate_total_savings(user_id)
     print(f"Total Savings(£): {total_savings}")
 
-    user_row = USERS_SHEET.row_values(get_user_row(user_id))
+    row_num = get_user_row(user_id)
+    user_row = USERS_SHEET.row_values(row_num)
+
     try:
+        # row_num = get_user_row(user_id)
+        # user_row = USERS_SHEET.row_values(row_num)
         goal_amount, goal_date = user_row[4], user_row[5]
         print(f"Overall Savings Goal(£): {goal_amount} by {goal_date}")
         savings_goal = calculate_budget(user_id, goal_amount, goal_date)
@@ -297,3 +301,9 @@ def calc_months_difference(user_id, goal_date):
     years_difference = goal_year - latest_year
 
     return (years_difference*12) + months_difference
+
+
+# row_num = get_user_row(4)
+# print(row_num)
+# user_row = USERS_SHEET.row_values(row_num)
+# print(user_row)

@@ -1,5 +1,5 @@
 """
-Module for running full program and interacting with database
+Module for running full program
 """
 
 import utils
@@ -334,7 +334,7 @@ def save_account_details(username: str, password: str, name: str):
                     {'name': create_account}]
 
     if validations.validate_menu_choice(menu_selection, len(menu_choices)):
-        if menu_selection == 1:
+        if int(menu_selection) == 1:
             utils.clear_terminal()
             print(f"Welcome {user_row[1]}!")
             print("Account susccessfully created\n")
