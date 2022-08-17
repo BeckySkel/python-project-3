@@ -63,7 +63,7 @@
 
 ### Future Features
 
-#### Password Encryption
+#### Password encryption
 - 
 
 #### 
@@ -97,20 +97,20 @@
 
 ### Current Features
 
-#### Start-Up
+#### Start-up
 ![Screenshot of the start-up screen, including the logo, welcome message and main menu](/assets/images/welcome.png)
 ##### Logo
 - The logo is large and bold. Printed in capitals to improve readability.
 - Created with [](https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
 - The logo is displayed upon initial launch and whenever the terminal is cleared (after login and logout). 
-##### Welcome Message
+##### Welcome message
 - Reads "Welcome to Budge: The budget and savings tracker!"
 - Provides a greeting to the user as well as a quick introduction to the function of the app.
-##### Main Menu
+##### Main menu
 - Displays a list of follow-up actions (login, create account and help), numbered 1 to 3. User input's number ascociated with the desired action. Re-called if input is invalid or if following action is exited.
 - Menu also displayed after logout.
 
-#### Start-Up Actions
+#### Start-up actions
 ##### Help
 - Provides information about the app to the user.
 - Called from the main menu and account menu, exited with empty input.
@@ -121,24 +121,24 @@
 - Re-called with failed attempts, exited with 'exit' input.
 ![Screenshot of account login](/assets/images/login.png)
 
-##### Create Account
+##### Create account
 - User chooses and inputs a username and password and also inputs their name. Inputs then confirmed before adding to database and logging in.
 - Each input re-called with failed validation, exited with 'exit' input.
 ![Screenshot of account setup](/assets/images/create-account.png)
 
 #### Account
-##### Entries Display
+##### Entries display
 - Displays a table of the user's previous entries as well as a few insights into their budgeting (total savings, overall savings goal, monthly savings goal).
 - Called from account menu.
 ![Screenshot of entries table](/assets/images/table-display.png)
 
-##### Account Menu
+##### Account menu
 - Displays a list of follow-up actions (add entry, remove entry, edit entry, edit budget, help, logout), numbered 1 to 6. User input's number ascociated with the desired action. Re-called if input is invalid or if following action is exited.
 - Called after successful login or account creation and loops after each account action.
 - Logout to exit to main menu.
 ![Screenshot of the account menu](/assets/images/account-menu.png)
 
-##### Add, Remove, Edit Entry
+##### Add, remove, edit entry
 - User inputs entry number, month, income and/or outgoings as needed. Each input is validated.
 - Inpupts are displayed and requests confirmation from user before actioning.
 - Re-called after failed validation, exited with 'exit' or cancelling at confirmation.
@@ -181,10 +181,9 @@
 ### Design
 
 #### Colour scheme
-
-![The colour scheme I used for the standard display](/assets/images/colour-scheme.png)
-
-- Colours used for negative and positive feedback text:
+- Text colours from [termcolor](https://pypi.org/project/termcolor/)
+- Red was used for negative feedback (e.g. invalid input), green for positive feedback (e.g. input valid), yellow for alerts, magenta for menus and cyan for headings.
+- The consistent use of colours helps the user to determine the nature of the message before reading.
 
 #### Imagery
 - There are no images used in this site.
@@ -224,6 +223,7 @@
 ### Media
 - Logo created with [](https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
 - Mock terminal provided by [Code Institute's Python Essentials Template](https://github.com/Code-Institute-Org/python-essentials-template)).
+- Text colours from [termcolor](https://pypi.org/project/termcolor/)
 
 ### Acknowledgements
 - [Code Institute](https://codeinstitute.net/) for providing excellent learning content and support

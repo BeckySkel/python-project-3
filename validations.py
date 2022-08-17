@@ -16,13 +16,12 @@ def validate_month_format(month_input):
     in month list, False if not
     """
     try:
-        month = month_input.split()[0]
-        year = month_input.split()[1]
+        month, year = month_input.split()
         MONTHS.index(f"{month}")
         int(year)
         if len(year) != 4:
             raise ValueError()
-    except (ValueError, IndexError):
+    except (ValueError):
         utils.print_colour("Month must be in format MMM YYYY, e.g. Jan 2022\n"
                            "Please try again.\n", 'red')
         return False
